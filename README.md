@@ -34,8 +34,9 @@ mvn spring-boot:run
 cd frontend
 npm install
 npm start
+npm run dev
 ```
 
 ## 접속 정보
 - 백엔드 서버: http://localhost:8080
-- 프론트엔드 개발 서버: http://localhost:3000 
+- 프론트엔드 개발 서버: http://localhost:3000 , http://localhost:5173
