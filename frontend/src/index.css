@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input,
+textarea,
+select,
+label {
+  @apply outline-none;
+}
+
+/* react-big-calendar custom */
+.rbc-event {
+  @apply bg-lime-600 text-xs;
+}
+
+button.rbc-button-link {
+  @apply text-xs;
+}
+
+.rbc-month-view {
+  @apply border-none;
+}
+
+.rbc-month-header {
+  @apply border-b-1 border-gray-300;
+}
+
+.rbc-header {
+  @apply font-light;
+}
+
+.rbc-header + .rbc-header {
+  @apply border-none;
+}
+
+.rbc-month-row + .rbc-month-row {
+  @apply border-none;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  @apply border-none;
+}
+
+.rbc-button-link {
+  @apply font-light;
+}
+
+.rbc-off-range-bg {
+  @apply bg-white;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Light.woff")
+    format("woff");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-SemiBold.woff")
+    format("woff");
+  font-weight: 600;
+}
+
+@layer base {
+  html {
+    font-family: "Pretendard";
+  }
+}
