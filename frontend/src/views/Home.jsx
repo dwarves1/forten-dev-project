@@ -29,11 +29,10 @@ export default function HomePage() {
         <CardLayout>
           <div className="flex justify-between items-center">
             <CardTitle textValue={"📢 공지사항"} />
-            <Link to="/notice">
-              <button className="btn btn-ghost btn-xs text-neutral-600">
-                더보기
-              </button>
-            </Link>
+
+            <button className="btn btn-ghost btn-xs text-neutral-600">
+              더보기
+            </button>
           </div>
           <ul className="text-sm text-neutral-800">
             {mockNoticeData.map(

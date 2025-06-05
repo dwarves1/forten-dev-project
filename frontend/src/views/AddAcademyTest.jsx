@@ -58,7 +58,28 @@ export default function AddAcademyTest() {
   };
 
   const handleMonthChange = (e) => {
-    setSelectedMonth(e.target.value);
+    const month = e.target.value;
+    setSelectedMonth(month);
+
+    if (selectedStudent && selectedStudent.monthlyTests[month]) {
+      const { tests } = selectedStudent.monthlyTests[month];
+
+      const updatedRecords = tests.reduce((acc, test) => {
+        acc[test.name] = test.record;
+        return acc;
+      }, {});
+
+      const updatedScores = tests.reduce((acc, test) => {
+        acc[test.name] = Number(test.score);
+        return acc;
+      }, {});
+
+      setRecords(updatedRecords);
+      setScores(updatedScores);
+    } else {
+      setRecords(testItem.reduce((acc, cur) => ({ ...acc, [cur]: "" }), {}));
+      setScores(testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {}));
+    }
   };
 
   const getScore = (testName, gender, record) => {
@@ -93,11 +114,14 @@ export default function AddAcademyTest() {
 
   return (
     <MainLayout>
-      <PageTitle textvaule={"실기 기록 추가"} />
+      <PageTitle textvaule={"실기 기록 등록"} />
+      <div className="flex justify-end mb-4">
+        <button className="btn btn-sm btn-outline btn-info">저장</button>
+      </div>
       <CardLayout>
         <div className="relative">
           <div className="flex justify-center">
-            <label className="input h-8 sm:h-10 w-full mb-8">
+            <label className="input h-10 w-full mb-8">
               <input
                 onChange={(e) => setSearchTerm(e.target.value)}
                 value={searchTerm}
@@ -105,22 +129,6 @@ export default function AddAcademyTest() {
                 className="grow"
                 placeholder="학생이름"
               />
-              <svg
-                className="h-[1em] opacity-50"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-              >
-                <g
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  strokeWidth="2.5"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.3-4.3"></path>
-                </g>
-              </svg>
             </label>
           </div>
           {searchTerm ? (
@@ -188,7 +196,7 @@ export default function AddAcademyTest() {
         <CardTitle textValue={"실기 기록 입력"} />
         {selectedStudent && (
           <>
-            <fieldset className="fieldset">
+            <fieldset className="fieldset max-w-52">
               <legend className="fieldset-legend">날짜선택</legend>
               <select
                 value={selectedMonth}

@@ -21,13 +21,24 @@ const testItem = [
 ];
 
 export default function AcademyTest() {
-  const [lists] = useState(mockTestData);
+  const lists = mockTestData;
 
   const allMonths = Array.from(
     new Set(mockTestData.flatMap((s) => Object.keys(s.monthlyTests)))
   );
   const sortedMonths = allMonths.sort().reverse();
   const [selectedMonth, setSelectedMonth] = useState(sortedMonths[0]); // 가장 최근 월 선택
+  const filteredLists = lists.filter((item) => {
+    if (selectedMonth === "all") {
+      return true;
+    }
+    return item.monthlyTests[selectedMonth];
+  });
+
+  const handleSelectMonth = (e) => {
+    const value = e.target.value;
+    setSelectedMonth(value);
+  };
 
   return (
     <div className="min-h-[calc(100vh-10rem)] pt-20 sm:pt-28 bg-base-200 px-4 pb-10 sm:px-6">
@@ -36,35 +47,33 @@ export default function AcademyTest() {
           <PageTitle textvaule={"포텐 실기 테스트"} />
         </div>
 
-        <div className="flex items-center justify-between">
-          <fieldset className="fieldset mb-2">
+        <div className="flex items-center justify-between mb-2">
+          <fieldset className="fieldset">
             <legend className="fieldset-legend">날짜 선택</legend>
             <select
               value={selectedMonth}
               className="select select-sm"
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => handleSelectMonth(e)}
             >
-              <option value={"2025-05"}>2025-12</option>
-              <option value={"2025-05"}>2025-11</option>
-              <option value={"2025-05"}>2025-10</option>
-              <option value={"2025-05"}>2025-09</option>
-              <option value={"2025-05"}>2025-08</option>
-              <option value={"2025-05"}>2025-07</option>
-              <option value={"2025-05"}>2025-06</option>
-              <option value={"2025-05"}>2025-05</option>
-              <option value={"2025-04"}>2025-04</option>
-              <option value={"2025-03"}>2025-03</option>
-              <option value={"2025-02"}>2025-02</option>
-              <option value={"2025-01"}>2025-01</option>
-              <option value={"2024-12"}>2024-12</option>
-              <option value={"2024-11"}>2024-11</option>
-              <option value={"2024-10"}>2024-10</option>
-              <option value={"2024-09"}>2024-09</option>
+              <option value={"all"}>전체</option>
+              {allMonths.map((month) => (
+                <option value={month} key={month}>
+                  {month}
+                </option>
+              ))}
             </select>
           </fieldset>
-          <Link to="/academy-test/add">
-            <button className="btn btn-sm btn-outline btn-accent">추가</button>
-          </Link>
+          <div className="flex gap-2">
+            <button className="btn btn-sm btn-outline">양식다운로드</button>
+            <button className="btn btn-sm btn-outline btn-success">
+              엑셀업로드
+            </button>
+            <Link to="/academy-test/add">
+              <button className="btn btn-sm btn-outline btn-info">
+                개별등록
+              </button>
+            </Link>
+          </div>
         </div>
         <CardLayout>
           <CardTitle textValue={"목록"} />
@@ -109,53 +118,121 @@ export default function AcademyTest() {
                 </tr>
               </thead>
               <tbody>
-                {lists
-                  .filter((item) => item.monthlyTests[selectedMonth])
-                  .map((item) => {
-                    const testData = item.monthlyTests[selectedMonth];
-
-                    return (
-                      <tr key={item.studentId} className="text-center">
-                        <td className="py-1 px-2 text-nowrap sticky left-0 bg-white">
-                          <Link
-                            to={`/academy-test/detail/${item.studentId}`}
-                            className="hover:text-sky-500"
-                          >
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="py-1 px-1">
-                          {item.gender == "female" ? "여" : "남"}
-                        </td>
-                        <td className="py-1 px-1 tracking-tight">
-                          {selectedMonth}
-                        </td>
-                        <td className="py-1 px-1 tracking-tight">
-                          {item.educationalGroup}
-                        </td>
-                        <td className="py-1 px-1 tracking-tight text-nowrap border-r border-stone-300">
-                          {item.school}
-                        </td>
-                        {testItem.map((name) => {
-                          const test = testData.tests.find(
-                            (t) => t.name === name
-                          );
-
+                {selectedMonth === "all" ? (
+                  <>
+                    {filteredLists.flatMap((student) =>
+                      Object.entries(student.monthlyTests)
+                        .map(([month, data]) => ({
+                          studentId: student.studentId,
+                          name: student.name,
+                          gender: student.gender,
+                          school: student.school,
+                          educationalGroup: student.educationalGroup,
+                          month,
+                          totalScore: data.totalScore,
+                          tests: data.tests,
+                        }))
+                        .map((entry, index) => {
                           return (
-                            <React.Fragment key={`${item.studentId}_${name}`}>
-                              <td className="px-1 text-neutral-600 bg-neutral-100">
-                                {test?.record ?? "-"}
+                            <tr
+                              key={`${entry.studentId}_${index}`}
+                              className="text-center"
+                            >
+                              <td className="py-1 px-2 text-nowrap sticky left-0 bg-white">
+                                <Link
+                                  to={`/academy-test/detail/${entry.studentId}`}
+                                  className="hover:text-sky-500"
+                                >
+                                  {entry.name}
+                                </Link>
                               </td>
-                              <td className="px-1">{test?.score ?? "-"}</td>
-                            </React.Fragment>
+                              <td className="py-1 px-1">
+                                {entry.gender == "female" ? "여" : "남"}
+                              </td>
+                              <td className="py-1 px-1 tracking-tight">
+                                {entry.month}
+                              </td>
+                              <td className="py-1 px-1 tracking-tight">
+                                {entry.educationalGroup}
+                              </td>
+                              <td className="py-1 px-1 tracking-tight text-nowrap border-r border-stone-300">
+                                {entry.school}
+                              </td>
+                              {testItem.map((name) => {
+                                const test = entry.tests.find(
+                                  (t) => t.name === name
+                                );
+
+                                return (
+                                  <React.Fragment
+                                    key={`${entry.studentId}_${name}`}
+                                  >
+                                    <td className="px-1 text-neutral-600 bg-neutral-100">
+                                      {test?.record ?? "-"}
+                                    </td>
+                                    <td className="px-1">
+                                      {test?.score ?? "-"}
+                                    </td>
+                                  </React.Fragment>
+                                );
+                              })}
+                              <td className="py-1 px-1 font-semibold">
+                                {entry.totalScore}
+                              </td>
+                            </tr>
                           );
-                        })}
-                        <td className="py-1 px-1 font-semibold">
-                          {testData.totalScore}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        })
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {filteredLists.map((item) => {
+                      const testData = item.monthlyTests[selectedMonth];
+
+                      return (
+                        <tr key={item.studentId} className="text-center">
+                          <td className="py-1 px-2 text-nowrap sticky left-0 bg-white">
+                            <Link
+                              to={`/academy-test/detail/${item.studentId}`}
+                              className="hover:text-sky-500"
+                            >
+                              {item.name}
+                            </Link>
+                          </td>
+                          <td className="py-1 px-1">
+                            {item.gender == "female" ? "여" : "남"}
+                          </td>
+                          <td className="py-1 px-1 tracking-tight">
+                            {selectedMonth}
+                          </td>
+                          <td className="py-1 px-1 tracking-tight">
+                            {item.educationalGroup}
+                          </td>
+                          <td className="py-1 px-1 tracking-tight text-nowrap border-r border-stone-300">
+                            {item.school}
+                          </td>
+                          {testItem.map((name) => {
+                            const test = testData.tests.find(
+                              (t) => t.name === name
+                            );
+
+                            return (
+                              <React.Fragment key={`${item.studentId}_${name}`}>
+                                <td className="px-1 text-neutral-600 bg-neutral-100">
+                                  {test?.record ?? "-"}
+                                </td>
+                                <td className="px-1">{test?.score ?? "-"}</td>
+                              </React.Fragment>
+                            );
+                          })}
+                          <td className="py-1 px-1 font-semibold">
+                            {testData.totalScore}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </>
+                )}
               </tbody>
             </table>
           </div>

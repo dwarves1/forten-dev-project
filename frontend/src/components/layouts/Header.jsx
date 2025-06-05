@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const MENU = [
-  { linkTo: "/notice", value: "공지사항" },
-  { linkTo: "/university", value: "대학입시정보" },
-  { linkTo: "/recommended", value: "대학추천" },
+  // { linkTo: "/notice", value: "공지사항" },
+  // { linkTo: "/university", value: "대학입시정보" },
+  // { linkTo: "/recommended", value: "대학추천" },
   { linkTo: "/academy-test", value: "학원실기테스트" },
 ];
 
