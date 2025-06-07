@@ -25,10 +25,6 @@ export default function AddStudent() {
     setStudentInfo((prev) => ({ ...prev, [fieldType]: value }));
   };
 
-  useEffect(() => {
-    console.log(studentInfo);
-  }, [studentInfo]);
-
   return (
     <MainLayout>
       <PageTitle textvaule={"학생 등록"} />
