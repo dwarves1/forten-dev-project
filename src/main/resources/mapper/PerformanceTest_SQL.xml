@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forten.mapper.PerformanceTestMapper">
+    
+    <select id="selectListAllPerformanceTest" parameterType="com.forten.vo.PerformanceTestVO" resultType="com.forten.vo.PerformanceTestVO">
+        SELECT 
+               s.name
+             , case when s.gender = 'M' then '남' else '여' end as gender
+             , pr.record_ym
+             , (select code_name from common_code where code = s.region_code) as region_code
+             , (select code_name from common_code where code = s.school_code) as school_code
+             , MAX(CASE WHEN ec.event_code = 'jump' THEN pr.score END) AS pf_jump
+             , MAX(CASE WHEN ec.event_code = 'situp' THEN pr.score END) AS pf_situp
+             , MAX(CASE WHEN ec.event_code = 'zrun' THEN pr.score END) AS pf_zrun
+             , MAX(CASE WHEN ec.event_code = 'medicine' THEN pr.score END) AS pf_medicine
+             , MAX(CASE WHEN ec.event_code = 'sprint100' THEN pr.score END) AS pf_sprint100
+             , MAX(CASE WHEN ec.event_code = 'flex' THEN pr.score END) AS pf_flex
+             , MAX(CASE WHEN ec.event_code = 'throw' THEN pr.score END) AS pf_throw
+             , MAX(CASE WHEN ec.event_code = 'back' THEN pr.score END) AS pf_back
+             , MAX(CASE WHEN ec.event_code = 'shuttle10' THEN pr.score END) AS pf_shuttle10
+             , MAX(CASE WHEN ec.event_code = 'shuttle20' THEN pr.score END) AS pf_shuttle20
+          FROM performance_record pr
+          JOIN student s ON pr.student_code = s.student_code
+          JOIN event_code ec ON pr.event_code = ec.event_code
+         where 1=1
+         <if test="recordYm != null and recordYm != ''">
+           and pr.record_ym = #{recordYm}
+         </if>
+         <if test="gender != null and gender != ''">
+           and s.gender = #{gender}
+         </if>
+         <if test="regionCode != null and regionCode != ''">
+           and s.region_code = #{regionCode}
+         </if>
+         <if test="name != null and name != ''">
+           and s.name = #{name}
+         </if>
+      GROUP BY s.name
+             , s.gender
+             , pr.record_ym
+             , s.region_code
+             , s.school_code
+      ORDER BY pr.record_ym
+             , s.name
+    </select>
+</mapper>
