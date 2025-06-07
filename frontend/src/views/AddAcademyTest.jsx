@@ -31,6 +31,8 @@ export default function AddAcademyTest() {
     testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {})
   );
 
+  const [testDatas, setTestDatas] = useState({ totalScore: "", tests: [] });
+
   const filteredStudents = students.filter((student) =>
     student.name.includes(searchTerm)
   );
@@ -104,10 +106,31 @@ export default function AddAcademyTest() {
   };
 
   const handleRecordChange = (testName, value) => {
-    setRecords((prev) => ({ ...prev, [testName]: value }));
+    setRecords((prev) => ({
+      ...prev,
+      [testName]: value,
+    }));
 
     const newScore = getScore(testName, selectedStudent.gender, value);
     setScores((prev) => ({ ...prev, [testName]: newScore }));
+  };
+
+  const handleSubmit = () => {
+    setTestDatas((prev) => {
+      let updated = [];
+
+      testItem.map((item) => {
+        const itemData = {
+          name: item,
+          record: records[item] === "" ? "0" : records[item],
+          score: scores[item],
+        };
+
+        updated.push(itemData);
+      });
+
+      return { ...prev, totalScore: totalScore, tests: updated };
+    });
   };
 
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -116,7 +139,12 @@ export default function AddAcademyTest() {
     <MainLayout>
       <PageTitle textvaule={"실기 기록 등록"} />
       <div className="flex justify-end mb-4">
-        <button className="btn btn-sm btn-outline btn-info">저장</button>
+        <button
+          onClick={handleSubmit}
+          className="btn btn-sm btn-outline btn-info"
+        >
+          저장
+        </button>
       </div>
       <CardLayout>
         <div className="relative">
@@ -162,7 +190,7 @@ export default function AddAcademyTest() {
           ) : null}
         </div>
         <CardTitle textValue={"학생 정보"} />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
           <div className="text-sm">
             <p className="text-neutral-500">이름</p>
             <p>{selectedStudent?.name ?? ""}</p>
@@ -178,10 +206,7 @@ export default function AddAcademyTest() {
             </p>
             <p></p>
           </div>
-          <div className="text-sm">
-            <p className="text-neutral-500">학생코드</p>
-            <p>{selectedStudent === null ? "" : selectedStudent.studentId}</p>
-          </div>
+
           <div className="text-sm">
             <p className="text-neutral-500">학교</p>
             <p>{selectedStudent?.school ?? ""}</p>
@@ -201,7 +226,7 @@ export default function AddAcademyTest() {
               <select
                 value={selectedMonth}
                 onChange={handleMonthChange}
-                className="select"
+                className="select focus:border-blue-400"
               >
                 <option disabled value="">
                   날짜를 선택하세요
@@ -232,18 +257,18 @@ export default function AddAcademyTest() {
                 <tbody>
                   {testItem.map((item) => (
                     <tr key={item}>
-                      <td className="py-2">{item}</td>
-                      <td className="py-2">
+                      <td className="py-2 text-nowrap">{item}</td>
+                      <td className="py-2 px-2 sm:px-3">
                         <input
                           type="number"
-                          className="input h-8"
+                          className="input h-8 focus:border-blue-400"
                           value={records[item]}
                           onChange={(e) =>
                             handleRecordChange(item, e.target.value)
                           }
                         />
                       </td>
-                      <td className="py-2">
+                      <td className="py-2 px-2 sm:px-3">
                         <input
                           type="number"
                           readOnly

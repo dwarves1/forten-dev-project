@@ -30,6 +30,7 @@ import RequestApproval from "./views/RequestApproval";
 import AcademyTest from "./views/AcademyTest";
 import AddAcademyTest from "./views/AddAcademyTest";
 import AcademyTestDetail from "./views/AcademyTestDetail";
+import AddStudent from "./views/Addstudent";
 
 export default function AppRouter() {
   return (
@@ -76,7 +77,8 @@ export default function AppRouter() {
         <Route path="/notice/:noticeId" element={<NoticeDetail />} />
         <Route path="/recommended" element={<RecommendedUniversities />} />
         <Route path="/academy-test" element={<AcademyTest />} />
-        <Route path="/academy-test/add" element={<AddAcademyTest />} />
+        <Route path="/academy-test/add-record" element={<AddAcademyTest />} />
+        <Route path="/academy-test/add-student" element={<AddStudent />} />
         <Route
           path="/academy-test/detail/:studentId"
           element={<AcademyTestDetail />}
