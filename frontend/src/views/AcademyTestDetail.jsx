@@ -34,7 +34,7 @@ export default function AcademyTestDetail() {
 
       <CardLayout>
         <CardTitle textValue={"학생정보"} />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
           <div className="text-sm">
             <p className="text-neutral-500">이름</p>
             <p>{detailData.name}</p>
@@ -42,10 +42,6 @@ export default function AcademyTestDetail() {
           <div className="text-sm">
             <p className="text-neutral-500">성별</p>
             <p>{detailData.gender === "female" ? "여" : "남"}</p>
-          </div>
-          <div className="text-sm">
-            <p className="text-neutral-500">학생코드</p>
-            <p>{detailData.studentId}</p>
           </div>
           <div className="text-sm">
             <p className="text-neutral-500">학교</p>
