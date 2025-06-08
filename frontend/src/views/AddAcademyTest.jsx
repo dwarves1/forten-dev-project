@@ -212,7 +212,7 @@ export default function AddAcademyTest() {
             <p>{selectedStudent?.school ?? ""}</p>
           </div>
           <div className="text-sm">
-            <p className="text-neutral-500">교육권</p>
+            <p className="text-neutral-500">교육원</p>
             <p>{selectedStudent?.educationalGroup ?? ""}</p>
           </div>
         </div>

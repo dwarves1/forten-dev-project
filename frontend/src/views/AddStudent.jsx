@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CardLayout from "../components/layouts/CardLayout";
 import MainLayout from "../components/layouts/MainLayout";
 import CardTitle from "../components/ui/CardTitle";
@@ -66,7 +66,7 @@ export default function AddStudent() {
             />
           </label>
           <label className="flex flex-col">
-            <span className="text-sm text-neutral-600 mb-1">교육권</span>
+            <span className="text-sm text-neutral-600 mb-1">교육원</span>
             <select
               className="select w-full focus:border-blue-400"
               value={studentInfo.educationalGroup}

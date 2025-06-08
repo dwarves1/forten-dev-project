@@ -38,13 +38,13 @@ export default function Header() {
       }`}
     >
       <div className="navbar max-w-6xl min-h-12 sm:min-h-16">
-        <div className="mr-8">
-          <Link to="/">
-            <h1 className="text-lg text-nowrap text-[#FB207F] italic px-2">
-              FOR10
-            </h1>
-          </Link>
-        </div>
+        <Link to="/" className="sm:mr-8">
+          <img
+            className="object-cover w-22 min-w-18"
+            src="/src/assets/logo/forten_logo_color.png"
+            alt="포텐 로고"
+          />
+        </Link>
         <div className="flex-1 hidden sm:block text-sm">
           <ul
             className={`flex gap-10 ${

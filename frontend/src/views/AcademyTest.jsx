@@ -276,7 +276,7 @@ export default function AcademyTest() {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span>교육권</span>
+                  <span>교육원</span>
                   <select
                     value={searchTerm["educationalGroup"]}
                     onChange={(e) =>
@@ -335,7 +335,7 @@ export default function AcademyTest() {
                         className="cursor-pointer"
                         onClick={() => handleHeaderClick("educationalGroup")}
                       >
-                        교육권
+                        교육원
                       </span>
                     </div>
                   </th>
@@ -404,7 +404,13 @@ export default function AcademyTest() {
                           {entry.name}
                         </Link>
                       </td>
-                      <td className="py-1 px-1">
+                      <td
+                        className={`py-1 px-1 ${
+                          entry.gender === "female"
+                            ? "text-red-400"
+                            : "text-blue-400"
+                        }`}
+                      >
                         {entry.gender == "female" ? "여" : "남"}
                       </td>
                       <td className="py-1 px-1 tracking-tight">

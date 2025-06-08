@@ -48,7 +48,7 @@ export default function AcademyTestDetail() {
             <p>{detailData.school}</p>
           </div>
           <div className="text-sm">
-            <p className="text-neutral-500">교육권</p>
+            <p className="text-neutral-500">교육원</p>
             <p>{detailData.educationalGroup}</p>
           </div>
         </div>
