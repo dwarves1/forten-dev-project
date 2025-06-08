@@ -4,7 +4,7 @@ import MainLayout from "../components/layouts/MainLayout";
 import CardTitle from "../components/ui/CardTitle";
 import PageTitle from "../components/ui/PageTitle";
 import mockTestData from "../mockTestData";
-import scoreTable from "../testScoreTable.json";
+import { getScore } from "../constants/scores";
 
 const testItem = [
   "제자리멀리뛰기",
@@ -81,27 +81,6 @@ export default function AddAcademyTest() {
     } else {
       setRecords(testItem.reduce((acc, cur) => ({ ...acc, [cur]: "" }), {}));
       setScores(testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {}));
-    }
-  };
-
-  const getScore = (testName, gender, record) => {
-    const eventData = scoreTable[testName];
-    if (!eventData) return 0;
-
-    const { higherIsBetter, [gender]: records } = eventData;
-    if (!records) return 0;
-
-    if (record === "" || record === null || isNaN(record) || record === "0")
-      return 0;
-
-    const recordValue = Number(record);
-
-    if (higherIsBetter) {
-      const matched = records.find((item) => recordValue >= item.record);
-      return matched ? matched.score : 0;
-    } else {
-      const matched = records.find((item) => recordValue <= item.record);
-      return matched ? matched.score : 0;
     }
   };
 
