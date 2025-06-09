@@ -1,39 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardLayout from "../components/layouts/CardLayout";
 import MainLayout from "../components/layouts/MainLayout";
 import CardTitle from "../components/ui/CardTitle";
 import PageTitle from "../components/ui/PageTitle";
-import mockTestData from "../mockTestData";
 import { getScore } from "../constants/scores";
-
-const testItem = [
-  "제자리멀리뛰기",
-  "윗몸일으키기",
-  "Z-런달리기",
-  "메디신볼",
-  "100M달리기",
-  "유연성(좌전굴)",
-  "던지기",
-  "배근력",
-  "10M왕복",
-  "20M왕복",
-];
+import { useDispatch, useSelector } from "react-redux";
+import { getAcademyTests } from "../service/studentTestsSlice";
+import { getTestNameInKorean, testNameList } from "../constants";
 
 export default function AddAcademyTest() {
-  const students = mockTestData;
+  const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.academyTests);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("");
   const [records, setRecords] = useState(
-    testItem.reduce((acc, cur) => ({ ...acc, [cur]: "" }), {})
+    testNameList.reduce((acc, cur) => ({ ...acc, [cur.code]: "" }), {})
   );
   const [scores, setScores] = useState(
-    testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {})
+    testNameList.reduce((acc, cur) => ({ ...acc, [cur.code]: 0 }), {})
   );
 
   const [testDatas, setTestDatas] = useState({ totalScore: "", tests: [] });
 
-  const filteredStudents = students.filter((student) =>
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      dispatch(getAcademyTests());
+    }
+  }, [dispatch, data]);
+
+  const filteredStudents = data?.filter((student) =>
     student.name.includes(searchTerm)
   );
 
@@ -47,8 +43,12 @@ export default function AddAcademyTest() {
         setSelectedStudent(value);
         setSearchTerm("");
         setSelectedMonth("");
-        setRecords(testItem.reduce((acc, cur) => ({ ...acc, [cur]: "" }), {}));
-        setScores(testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {}));
+        setRecords(
+          testNameList.reduce((acc, cur) => ({ ...acc, [cur.code]: "" }), {})
+        );
+        setScores(
+          testNameList.reduce((acc, cur) => ({ ...acc, [cur.code]: 0 }), {})
+        );
       } else {
         setSearchTerm("");
       }
@@ -78,9 +78,6 @@ export default function AddAcademyTest() {
 
       setRecords(updatedRecords);
       setScores(updatedScores);
-    } else {
-      setRecords(testItem.reduce((acc, cur) => ({ ...acc, [cur]: "" }), {}));
-      setScores(testItem.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {}));
     }
   };
 
@@ -98,7 +95,7 @@ export default function AddAcademyTest() {
     setTestDatas((prev) => {
       let updated = [];
 
-      testItem.map((item) => {
+      testNameList.map((item) => {
         const itemData = {
           name: item,
           record: records[item] === "" ? "0" : records[item],
@@ -144,7 +141,7 @@ export default function AddAcademyTest() {
                 <ul className="divide-y divide-stone-200">
                   {filteredStudents.map((student) => (
                     <li
-                      key={student.studentId}
+                      key={student.name}
                       className="p-4 hover:bg-neutral-100 cursor-pointer"
                       onClick={() => handleSelectStudent(student)}
                     >
@@ -154,7 +151,7 @@ export default function AddAcademyTest() {
                           {student.gender === "female" ? "여" : "남"})
                         </div>
                         <div className="text-sm text-gray-500 ml-auto">
-                          {student.school} / {student.educationalGroup}
+                          {student.school} / {student.district}
                         </div>
                       </div>
                     </li>
@@ -169,30 +166,36 @@ export default function AddAcademyTest() {
           ) : null}
         </div>
         <CardTitle textValue={"학생 정보"} />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-          <div className="text-sm">
-            <p className="text-neutral-500">이름</p>
-            <p>{selectedStudent?.name ?? ""}</p>
-          </div>
-          <div className="text-sm">
-            <p className="text-neutral-500">성별</p>
-            <p>
-              {selectedStudent
-                ? selectedStudent.gender === "female"
-                  ? "여"
-                  : "남"
-                : ""}
-            </p>
-            <p></p>
-          </div>
-
-          <div className="text-sm">
-            <p className="text-neutral-500">학교</p>
-            <p>{selectedStudent?.school ?? ""}</p>
-          </div>
-          <div className="text-sm">
-            <p className="text-neutral-500">교육원</p>
-            <p>{selectedStudent?.educationalGroup ?? ""}</p>
+        <div className="flex w-full items-center mt-4">
+          <img
+            className="border-1 border-stone-400 h-28 sm:h-36 md:h-48 object-cover transition-height duration-100"
+            src="https://placehold.co/400x600"
+            alt="학생 사진"
+          />
+          <div className="grid grid-cols-2 gap-4 md:gap-10 ml-4 sm:ml-8 w-full min-w-40">
+            <div className="text-sm">
+              <p className="text-neutral-500">이름</p>
+              <p>{selectedStudent?.name ?? ""}</p>
+            </div>
+            <div className="text-sm">
+              <p className="text-neutral-500">성별</p>
+              <p>
+                {selectedStudent
+                  ? selectedStudent.gender === "female"
+                    ? "여"
+                    : "남"
+                  : ""}
+              </p>
+              <p></p>
+            </div>
+            <div className="text-sm">
+              <p className="text-neutral-500">학교</p>
+              <p>{selectedStudent?.school ?? ""}</p>
+            </div>
+            <div className="text-sm">
+              <p className="text-neutral-500">교육원</p>
+              <p>{selectedStudent?.district ?? ""}</p>
+            </div>
           </div>
         </div>
       </CardLayout>
@@ -234,16 +237,18 @@ export default function AddAcademyTest() {
                   </tr>
                 </thead>
                 <tbody>
-                  {testItem.map((item) => (
-                    <tr key={item}>
-                      <td className="py-2 text-nowrap">{item}</td>
+                  {testNameList.map((item) => (
+                    <tr key={item.code}>
+                      <td className="py-2 text-nowrap">
+                        {getTestNameInKorean(item.code)}
+                      </td>
                       <td className="py-2 px-2 sm:px-3">
                         <input
                           type="number"
                           className="input h-8 focus:border-blue-400"
-                          value={records[item]}
+                          value={records[item.code] ?? ""}
                           onChange={(e) =>
-                            handleRecordChange(item, e.target.value)
+                            handleRecordChange(item.code, e.target.value)
                           }
                         />
                       </td>
@@ -252,7 +257,7 @@ export default function AddAcademyTest() {
                           type="number"
                           readOnly
                           className="input h-8"
-                          value={scores[item]}
+                          value={scores[item.code] ?? 0}
                         />
                       </td>
                     </tr>

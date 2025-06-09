@@ -7,17 +7,17 @@ import {
   LabelList,
   ResponsiveContainer,
 } from "recharts";
+import { getTestNameInKorean } from "../../constants";
 
 const getChartDataWithRecord = (monthlyTests, eventName) => {
   const result = Object.entries(monthlyTests)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, data]) => {
       const test = data.tests.find((t) => t.name === eventName);
-
       return {
         month,
         score: test ? Number(test.score) : 0,
-        record: test ? test.record : "-",
+        record: test ? test.record : "0",
       };
     });
 
@@ -45,7 +45,7 @@ export default function EventLineChart({ monthlyTests, eventName }) {
 
   return (
     <div className="w-full h-68">
-      <h2 className="text-sm ml-10">{eventName}</h2>
+      <h2 className="text-sm ml-10">{getTestNameInKorean(eventName)}</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 20, right: 15 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -62,7 +62,6 @@ export default function EventLineChart({ monthlyTests, eventName }) {
             stroke="oklch(78.9% 0.154 211.53)"
             strokeWidth={1}
           >
-            {" "}
             <LabelList dataKey="record" content={CustomLabel} />
           </Line>
         </LineChart>

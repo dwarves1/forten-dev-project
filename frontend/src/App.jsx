@@ -5,15 +5,20 @@ import Header from "./components/layouts/Header";
 
 function App() {
   useEffect(() => {
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/api/performance-test/selectListAllPerformanceTest`)
-      .then(response => response.json())
-      .then(data => {
+    fetch(
+      `${
+        import.meta.env.VITE_API_BASE_URL
+      }/api/performance-test/selectListAllPerformanceTest`
+    )
+      .then((response) => response.json())
+      .then((data) => {
         console.log(data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  },[])
+  }, []);
+
   return (
     <>
       <Header />

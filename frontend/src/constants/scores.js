@@ -25,7 +25,7 @@ export const getScore = (testName, gender, record) => {
 };
 
 const scoreTable = {
-  제자리멀리뛰기: {
+  pfJump: {
     higherIsBetter: true,
     male: [
       { record: 300, score: 100 },
@@ -84,7 +84,7 @@ const scoreTable = {
       { record: 178, score: 75 },
     ],
   },
-  윗몸일으키기: {
+  pfSitup: {
     higherIsBetter: true,
     male: [
       { record: 77, score: 100 },
@@ -144,7 +144,7 @@ const scoreTable = {
       { record: 24, score: 75 },
     ],
   },
-  "Z-런달리기": {
+  pfZrun: {
     higherIsBetter: false,
     male: [
       { record: 13.99, score: 100 },
@@ -203,7 +203,7 @@ const scoreTable = {
       { record: 17.79, score: 75 },
     ],
   },
-  메디신볼: {
+  pfMedicine: {
     higherIsBetter: true,
     male: [
       { record: 12, score: 100 },
@@ -262,7 +262,7 @@ const scoreTable = {
       { record: 2.8, score: 75 },
     ],
   },
-  "100M달리기": {
+  pfSprint100: {
     higherIsBetter: false,
     male: [
       { record: 11.5, score: 100 },
@@ -321,7 +321,7 @@ const scoreTable = {
       { record: 16.0, score: 75 },
     ],
   },
-  "유연성(좌전굴)": {
+  pfFlex: {
     higherIsBetter: true,
     male: [
       { record: 30, score: 100 },
@@ -380,7 +380,7 @@ const scoreTable = {
       { record: 8, score: 75 },
     ],
   },
-  던지기: {
+  pfThrow: {
     higherIsBetter: true,
     male: [
       { record: 43, score: 100 },
@@ -439,7 +439,7 @@ const scoreTable = {
       { record: 6, score: 75 },
     ],
   },
-  배근력: {
+  pfBack: {
     higherIsBetter: true,
     male: [
       { record: 220, score: 100 },
@@ -498,7 +498,7 @@ const scoreTable = {
       { record: 40, score: 75 },
     ],
   },
-  "10M왕복": {
+  pfShuttle10: {
     higherIsBetter: false,
     male: [
       { record: 7.5, score: 100 },
@@ -557,7 +557,7 @@ const scoreTable = {
       { record: 10.9, score: 75 },
     ],
   },
-  "20M왕복": {
+  pfShuttle20: {
     higherIsBetter: false,
     male: [
       { record: 14.0, score: 100 },

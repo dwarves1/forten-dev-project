@@ -3,68 +3,30 @@ import PageTitle from "../components/ui/PageTitle";
 import CardLayout from "../components/layouts/CardLayout";
 import CardTitle from "../components/ui/CardTitle";
 import { useState } from "react";
-import mockTestData from "../mockTestData";
 import { Link } from "react-router-dom";
-
-const testItem = [
-  "제자리멀리뛰기",
-  "윗몸일으키기",
-  "Z-런달리기",
-  "메디신볼",
-  "100M달리기",
-  "유연성(좌전굴)",
-  "던지기",
-  "배근력",
-  "10M왕복",
-  "20M왕복",
-];
+import { useDispatch, useSelector } from "react-redux";
+import { getAcademyTests } from "../service/studentTestsSlice";
+import { ClipLoader } from "react-spinners";
+import { testNameList } from "../constants";
 
 const SORT_TYPE = { desc: "desc", asc: "asc" };
 
 export default function AcademyTest() {
-  const lists = mockTestData;
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.academyTests);
 
-  const allMonths = Array.from(
-    new Set(mockTestData.flatMap((s) => Object.keys(s.monthlyTests)))
-  );
-  const sortedMonths = allMonths.sort().reverse();
-  const [selectedMonth, setSelectedMonth] = useState(sortedMonths[0]); // 가장 최근 월 선택
-
-  const [filteredLists, setFilteredLists] = useState(
-    lists.filter((item) => {
-      if (selectedMonth === "all") {
-        return true;
-      }
-      return item.monthlyTests[selectedMonth];
-    })
-  );
-
-  const [displayedList, setDisplayedList] = useState(
-    filteredLists.flatMap((student) =>
-      Object.entries(student.monthlyTests)
-        .filter(([month]) => selectedMonth === "all" || selectedMonth === month)
-        .map(([month, data]) => ({
-          studentId: student.studentId,
-          name: student.name,
-          gender: student.gender,
-          school: student.school,
-          educationalGroup: student.educationalGroup,
-          month,
-          totalScore: data.totalScore,
-          tests: data.tests,
-        }))
-    )
-  );
-
+  const [allMonths, setALLMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [filteredLists, setFilteredLists] = useState([]);
+  const [displayedList, setDisplayedList] = useState(null);
   const [searchTerm, setSearchTerm] = useState({
     gender: "all",
-    educationalGroup: "all",
+    district: "all",
     name: "",
   });
-
   const [sortConfig, setSortConfig] = useState({
     key: null,
-    direction: "desc",
+    direction: SORT_TYPE.desc,
   });
 
   const handleSelectMonth = (e) => {
@@ -72,31 +34,36 @@ export default function AcademyTest() {
     setSelectedMonth(value);
     setSearchTerm({
       gender: "all",
-      educationalGroup: "all",
+      district: "all",
       name: "",
     });
+
     setFilteredLists(
-      lists.filter((item) => {
-        if (selectedMonth === "all") {
+      data.filter((item) => {
+        if (value === "all") {
           return true;
         }
         return item.monthlyTests[selectedMonth];
       })
     );
-    setSortConfig({ key: null, direction: "desc" });
+    setSortConfig({ key: null, direction: SORT_TYPE.desc });
   };
 
   const handleHeaderClick = (key) => {
     setSortConfig((prev) => {
       if (prev.key === key) {
-        return { key, direction: prev.direction === "desc" ? "asc" : "desc" };
+        return {
+          key,
+          direction: prev.direction === SORT_TYPE.desc ? "asc" : "desc",
+        };
       }
 
-      return { key, direction: "desc" };
+      return { key, direction: SORT_TYPE.desc };
     });
   };
 
   const sortedDisplayedList = useMemo(() => {
+    if (!displayedList) return [];
     if (!sortConfig.key) return displayedList;
 
     const sorted = [...displayedList].sort((x, y) => {
@@ -106,24 +73,24 @@ export default function AcademyTest() {
         const xEvent = x.tests.find((test) => test.name === testName);
         const yEvent = y.tests.find((test) => test.name === testName);
 
-        const xScore = parseFloat(xEvent.score);
-        const yScore = parseFloat(yEvent.score);
+        const xScore = parseFloat(xEvent?.score ?? "0");
+        const yScore = parseFloat(yEvent?.score ?? "0");
 
         const res = xScore - yScore;
 
-        return sortConfig.direction === "desc" ? -res : res;
+        return sortConfig.direction === SORT_TYPE.desc ? -res : res;
       } else if (sortConfig.key.startsWith("record:")) {
         const testName = sortConfig.key.split(":")[1];
 
         const xEvent = x.tests.find((test) => test.name === testName);
         const yEvent = y.tests.find((test) => test.name === testName);
 
-        const xRecord = parseFloat(xEvent.record);
-        const yRecord = parseFloat(yEvent.record);
+        const xRecord = parseFloat(xEvent?.record ?? "0");
+        const yRecord = parseFloat(yEvent?.record ?? "0");
 
         const res = xRecord - yRecord;
 
-        return sortConfig.direction === "desc" ? -res : res;
+        return sortConfig.direction === SORT_TYPE.desc ? -res : res;
       }
 
       const v1 = x[sortConfig.key];
@@ -139,7 +106,7 @@ export default function AcademyTest() {
       } else {
         res = String(v1).localeCompare(String(v2));
       }
-      return sortConfig.direction === "desc" ? -res : res;
+      return sortConfig.direction === SORT_TYPE.desc ? -res : res;
     });
     return sorted;
   }, [displayedList, sortConfig]);
@@ -152,14 +119,14 @@ export default function AcademyTest() {
   };
 
   const handleSearchClick = () => {
-    const newList = lists.filter((student) => {
+    const newList = data.filter((student) => {
       const matchName =
         searchTerm.name === "" || student.name.includes(searchTerm.name);
       const matchGender =
         searchTerm.gender === "all" || student.gender === searchTerm.gender;
       const matchEducatinalGroup =
-        searchTerm.educationalGroup === "all" ||
-        student.educationalGroup === searchTerm.educationalGroup;
+        searchTerm.district === "all" ||
+        student.district === searchTerm.district;
 
       return matchName && matchGender && matchEducatinalGroup;
     });
@@ -168,6 +135,34 @@ export default function AcademyTest() {
   };
 
   useEffect(() => {
+    if (!data) return;
+
+    const months = Array.from(
+      new Set(data.flatMap((s) => Object.keys(s.monthlyTests)))
+    );
+    const sortedMonths = months.sort().reverse();
+    const initialMonth = sortedMonths[0];
+    setALLMonths(sortedMonths);
+    setSelectedMonth(initialMonth);
+  }, [data]);
+
+  useEffect(() => {
+    if (!selectedMonth || data.length === 0) return;
+
+    const filtered =
+      selectedMonth === "all"
+        ? data
+        : data.filter((item) => item.monthlyTests[selectedMonth]);
+
+    setFilteredLists(filtered);
+  }, [selectedMonth, data]);
+
+  useEffect(() => {
+    if (filteredLists.length === 0) {
+      setDisplayedList([]);
+      return;
+    }
+
     const newDisplayed = filteredLists.flatMap((student) =>
       Object.entries(student.monthlyTests)
         .filter(([month]) => selectedMonth === "all" || selectedMonth === month)
@@ -176,7 +171,7 @@ export default function AcademyTest() {
           name: student.name,
           gender: student.gender,
           school: student.school,
-          educationalGroup: student.educationalGroup,
+          district: student.district,
           month,
           totalScore: data.totalScore,
           tests: data.tests,
@@ -184,7 +179,11 @@ export default function AcademyTest() {
     );
 
     setDisplayedList(newDisplayed);
-  }, [selectedMonth, filteredLists]);
+  }, [filteredLists, selectedMonth]);
+
+  useEffect(() => {
+    dispatch(getAcademyTests());
+  }, [dispatch]);
 
   return (
     <div className="min-h-[calc(100vh-10rem)] pt-20 sm:pt-28 bg-base-200 px-4 pb-10 sm:px-6">
@@ -192,12 +191,11 @@ export default function AcademyTest() {
         <div className="flex justify-between items-center mb-6">
           <PageTitle textvaule={"포텐 실기 테스트"} />
         </div>
-
         <div className="flex items-center gap-2 justify-between mb-2 flex-wrap">
           <fieldset className="fieldset">
             <legend className="fieldset-legend">날짜 선택</legend>
             <select
-              value={selectedMonth}
+              value={selectedMonth || "all"}
               className="select select-sm"
               onChange={(e) => handleSelectMonth(e)}
             >
@@ -278,9 +276,9 @@ export default function AcademyTest() {
                 <div className="flex flex-col">
                   <span>교육원</span>
                   <select
-                    value={searchTerm["educationalGroup"]}
+                    value={searchTerm["district"]}
                     onChange={(e) =>
-                      handleSearchTermChange(e.target.value, "educationalGroup")
+                      handleSearchTermChange(e.target.value, "district")
                     }
                     className="select h-8 w-fit focus:border-blue-400"
                   >
@@ -308,8 +306,20 @@ export default function AcademyTest() {
               </button>
             </fieldset>
           </div>
-          <CardTitle textValue={"목록"} />
-          <div className="w-full overflow-x-auto mt-4 pb-2">
+          <div className="flex h-10">
+            <CardTitle textValue={"목록"} />
+            {loading && (
+              <div className="ml-auto">
+                <ClipLoader
+                  aria-label="Loading Spinner"
+                  color="#003AAC"
+                  speedMultiplier={0.8}
+                  size={18}
+                />
+              </div>
+            )}
+          </div>
+          <div className="w-full overflow-x-auto pb-2">
             <table className="table w-full text-sm">
               <thead>
                 <tr className="bg-sky-50 text-center">
@@ -333,7 +343,7 @@ export default function AcademyTest() {
                     <div className="flex flex-col items-center">
                       <span
                         className="cursor-pointer"
-                        onClick={() => handleHeaderClick("educationalGroup")}
+                        onClick={() => handleHeaderClick("district")}
                       >
                         교육원
                       </span>
@@ -352,10 +362,10 @@ export default function AcademyTest() {
                       </span>
                     </div>
                   </th>
-                  {testItem.map((item) => (
-                    <th key={item} colSpan={2} className="px-2 py-1">
+                  {testNameList.map((item) => (
+                    <th key={item.code} colSpan={2} className="px-2 py-1">
                       <div className="flex flex-col items-center">
-                        <span>{item}</span>
+                        <span>{item.label}</span>
                       </div>
                     </th>
                   ))}
@@ -371,16 +381,16 @@ export default function AcademyTest() {
                   </th>
                 </tr>
                 <tr className="text-xs text-center">
-                  {testItem.map((item, i) => (
+                  {testNameList.map((item, i) => (
                     <React.Fragment key={i}>
                       <th
-                        onClick={() => handleHeaderClick(`record:${item}`)}
+                        onClick={() => handleHeaderClick(`record:${item.code}`)}
                         className="px-2 py-1 text-sky-400 cursor-pointer"
                       >
                         기록
                       </th>
                       <th
-                        onClick={() => handleHeaderClick(`score:${item}`)}
+                        onClick={() => handleHeaderClick(`score:${item.code}`)}
                         className="px-2 py-1 text-rose-400 cursor-pointer"
                       >
                         점수
@@ -392,13 +402,10 @@ export default function AcademyTest() {
               <tbody>
                 {sortedDisplayedList.map((entry, index) => {
                   return (
-                    <tr
-                      key={`${entry.studentId}_${index}`}
-                      className="text-center"
-                    >
+                    <tr key={`${entry.name}_${index}`} className="text-center">
                       <td className="py-1 px-2 text-nowrap sticky left-0 bg-white">
                         <Link
-                          to={`/academy-test/detail/${entry.studentId}`}
+                          to={`/academy-test/detail/${entry.name}`}
                           className="hover:text-sky-500"
                         >
                           {entry.name}
@@ -417,16 +424,20 @@ export default function AcademyTest() {
                         {entry.month}
                       </td>
                       <td className="py-1 px-1 tracking-tight">
-                        {entry.educationalGroup}
+                        {entry.district}
                       </td>
                       <td className="py-1 px-1 tracking-tight text-nowrap border-r border-stone-300">
                         {entry.school}
                       </td>
-                      {testItem.map((name) => {
-                        const test = entry.tests.find((t) => t.name === name);
+                      {testNameList.map((item, index) => {
+                        const test = entry.tests.find(
+                          (t) => t.name === item.code
+                        );
 
                         return (
-                          <React.Fragment key={`${entry.studentId}_${name}`}>
+                          <React.Fragment
+                            key={`${entry.name}_${entry.gender}_${item.code}_${index}`}
+                          >
                             <td className="px-1 text-neutral-600 bg-neutral-100">
                               {test?.record ?? "-"}
                             </td>
@@ -443,7 +454,7 @@ export default function AcademyTest() {
               </tbody>
             </table>
           </div>
-        </CardLayout>
+        </CardLayout>{" "}
       </div>
     </div>
   );

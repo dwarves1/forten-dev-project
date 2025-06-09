@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CardLayout from "../components/layouts/CardLayout";
 import MainLayout from "../components/layouts/MainLayout";
 import CardTitle from "../components/ui/CardTitle";
@@ -13,6 +13,9 @@ const FIELD_TYPE = {
 };
 
 export default function AddStudent() {
+  const inputRef = useRef(null);
+  const [imgFile, setImgFile] = useState(null);
+  const [imgPreview, setImgPreview] = useState(null);
   const [studentInfo, setStudentInfo] = useState({
     name: "",
     gender: "male",
@@ -25,6 +28,25 @@ export default function AddStudent() {
     setStudentInfo((prev) => ({ ...prev, [fieldType]: value }));
   };
 
+  const handleUploadImgChange = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImgPreview(reader.result);
+      setImgFile(file);
+    };
+
+    reader.readAsDataURL(file);
+  }, []);
+
+  useEffect(() => {
+    console.log(imgFile);
+    console.log(imgPreview);
+  }, [imgFile, imgPreview]);
+
   return (
     <MainLayout>
       <PageTitle textvaule={"학생 등록"} />
@@ -33,6 +55,7 @@ export default function AddStudent() {
       </div>
       <CardLayout>
         <CardTitle textValue={"학생 정보"} />
+
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 mt-4">
           <label className="flex flex-col">
             <span className="text-sm text-neutral-600 mb-1">학생이름</span>
@@ -80,6 +103,26 @@ export default function AddStudent() {
               <option value={"중구"}>중구</option>
             </select>
           </label>
+        </div>
+        <div className="mt-4 flex flex-col">
+          <span className="text-sm text-neutral-600 mb-1">이미지 선택</span>
+          {imgPreview && (
+            <div className="mb-1">
+              <img
+                className="h-28 object-cover aspect-3/4 border-1 border-stone-400"
+                src={imgPreview}
+                alt="미리보기 이미지"
+              />
+            </div>
+          )}
+
+          <input
+            ref={inputRef}
+            type="file"
+            className="file-input focus:border-blue-400"
+            accept="image/*"
+            onChange={(e) => handleUploadImgChange(e)}
+          />
         </div>
       </CardLayout>
     </MainLayout>
