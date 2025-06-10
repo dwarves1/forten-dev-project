@@ -5,6 +5,7 @@
     <select id="selectListAllPerformanceTest" parameterType="com.forten.vo.PerformanceTestVO" resultType="com.forten.vo.PerformanceTestVO">
         SELECT 
                s.name
+             , s.student_code
              , case when s.gender = 'M' then '남' else '여' end as gender
              , pr.record_ym
              , (select code_name from common_code where code = s.region_code) as region_code
@@ -36,6 +37,7 @@
            and s.name = #{name}
          </if>
       GROUP BY s.name
+             , s.student_code
              , s.gender
              , pr.record_ym
              , s.region_code
