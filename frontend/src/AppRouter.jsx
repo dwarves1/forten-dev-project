@@ -80,7 +80,7 @@ export default function AppRouter() {
         <Route path="/academy-test/add-record" element={<AddAcademyTest />} />
         <Route path="/academy-test/add-student" element={<AddStudent />} />
         <Route
-          path="/academy-test/detail/:studentName"
+          path="/academy-test/detail/:studentCode"
           element={<AcademyTestDetail />}
         />
       </Routes>

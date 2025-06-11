@@ -5,14 +5,23 @@ export const normalizeAcademyTest = (rows) => {
   const peopleMap = new Map();
 
   rows.forEach((row) => {
-    const { name, gender, regionCode, schoolCode, recordYm, ...rest } = row;
-    const personKey = `${name}-${gender}-${regionCode}-${schoolCode}`;
+    const {
+      studentCode,
+      name,
+      gender,
+      regionCode,
+      schoolCode,
+      recordYm,
+      ...rest
+    } = row;
+
     const genderEng = normalizeGender(gender);
     const formattedYm = formatYearMonth(recordYm);
 
-    if (!peopleMap.has(personKey)) {
-      peopleMap.set(personKey, {
-        name: name,
+    if (!peopleMap.has(studentCode)) {
+      peopleMap.set(studentCode, {
+        studentCode,
+        name,
         gender: genderEng,
         district: regionCode,
         school: schoolCode,
@@ -20,7 +29,7 @@ export const normalizeAcademyTest = (rows) => {
       });
     }
 
-    const person = peopleMap.get(personKey);
+    const person = peopleMap.get(studentCode);
 
     if (!person.monthlyTests[formattedYm]) {
       person.monthlyTests[formattedYm] = { tests: [] };

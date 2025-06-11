@@ -64,17 +64,7 @@ export default function AcademyTest() {
     if (!displayedList) return [];
     if (!sortConfig.key) return displayedList;
 
-    const listsWithTestMap = displayedList.map((entry) => {
-      const testMap = new Map();
-
-      entry.tests.forEach((test) => {
-        testMap.set(test.name, test);
-      });
-
-      return { ...entry, testMap };
-    });
-
-    const sorted = [...listsWithTestMap].sort((x, y) => {
+    const sorted = [...displayedList].sort((x, y) => {
       if (sortConfig.key.startsWith("score:")) {
         const testName = sortConfig.key.split(":")[1];
 
@@ -116,6 +106,7 @@ export default function AcademyTest() {
       }
       return sortConfig.direction === SORT_TYPE.desc ? -res : res;
     });
+
     return sorted;
   }, [displayedList, sortConfig]);
 
@@ -164,16 +155,24 @@ export default function AcademyTest() {
     const newDisplayed = filteredLists.flatMap((student) =>
       Object.entries(student.monthlyTests)
         .filter(([month]) => selectedMonth === "all" || selectedMonth === month)
-        .map(([month, data]) => ({
-          studentId: student.studentId,
-          name: student.name,
-          gender: student.gender,
-          school: student.school,
-          district: student.district,
-          month,
-          totalScore: data.totalScore,
-          tests: data.tests,
-        }))
+        .map(([month, data]) => {
+          const testMap = new Map();
+          data.tests.forEach((test) => {
+            testMap.set(test.name, test);
+          });
+
+          return {
+            studentCode: student.studentCode,
+            name: student.name,
+            gender: student.gender,
+            school: student.school,
+            district: student.district,
+            month,
+            totalScore: data.totalScore,
+            tests: data.tests,
+            testMap,
+          };
+        })
     );
 
     setDisplayedList(newDisplayed);
@@ -224,75 +223,82 @@ export default function AcademyTest() {
         </div>
         <CardLayout minHeight={"min-h-200"}>
           <div>
-            <fieldset className="fieldset flex items-end">
-              <legend className="fieldset-legend">학생 검색</legend>
-              <div className="flex gap-4 items-center justify-center flex-wrap">
-                <div>
-                  <span>성별</span>
-                  <div className="h-8 flex items-center">
-                    <label className="mr-2">
-                      전체
-                      <input
-                        type="radio"
-                        name="radio-10"
-                        className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
-                        value="all"
-                        checked={gender === "all"}
-                        onChange={(e) => setGender(e.target.value)}
-                      />
-                    </label>
-                    <label className="mr-2">
-                      남
-                      <input
-                        type="radio"
-                        name="radio-10"
-                        className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
-                        value="male"
-                        checked={gender === "male"}
-                        onChange={(e) => setGender(e.target.value)}
-                      />
-                    </label>
-                    <label>
-                      여
-                      <input
-                        type="radio"
-                        name="radio-10"
-                        className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
-                        value="female"
-                        checked={gender === "female"}
-                        onChange={(e) => setGender(e.target.value)}
-                      />
-                    </label>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearchClick();
+              }}
+            >
+              <fieldset className="fieldset flex items-end">
+                <legend className="fieldset-legend">학생 검색</legend>
+                <div className="flex gap-4 items-center justify-center flex-wrap">
+                  <div>
+                    <span>성별</span>
+                    <div className="h-8 flex items-center">
+                      <label className="mr-2">
+                        전체
+                        <input
+                          type="radio"
+                          name="radio-10"
+                          className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
+                          value="all"
+                          checked={gender === "all"}
+                          onChange={(e) => setGender(e.target.value)}
+                        />
+                      </label>
+                      <label className="mr-2">
+                        남
+                        <input
+                          type="radio"
+                          name="radio-10"
+                          className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
+                          value="male"
+                          checked={gender === "male"}
+                          onChange={(e) => setGender(e.target.value)}
+                        />
+                      </label>
+                      <label>
+                        여
+                        <input
+                          type="radio"
+                          name="radio-10"
+                          className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
+                          value="female"
+                          checked={gender === "female"}
+                          onChange={(e) => setGender(e.target.value)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span>교육원</span>
+                    <select
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      className="select h-8 w-fit focus:border-blue-400"
+                    >
+                      <option value={"all"}>전체</option>
+                      <option value={"남구"}>남구</option>
+                      <option value={"동구"}>동구</option>
+                      <option value={"북구"}>북구</option>
+                      <option value={"중구"}>중구</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col">
+                    <span>학생 이름</span>
+                    <input
+                      value={name}
+                      className="input h-8 w-32 focus:border-blue-400"
+                      placeholder="이름"
+                      onChange={(e) => setName(e.target.value)}
+                    />
                   </div>
                 </div>
-                <div className="flex flex-col">
-                  <span>교육원</span>
-                  <select
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    className="select h-8 w-fit focus:border-blue-400"
-                  >
-                    <option value={"all"}>전체</option>
-                    <option value={"남구"}>남구</option>
-                    <option value={"동구"}>동구</option>
-                    <option value={"북구"}>북구</option>
-                    <option value={"중구"}>중구</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <span>학생 이름</span>
-                  <input
-                    value={name}
-                    className="input h-8 w-32 focus:border-blue-400"
-                    placeholder="이름"
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-              </div>
-              <button onClick={handleSearchClick} className="btn h-8">
-                검색
-              </button>
-            </fieldset>
+                <button onClick={handleSearchClick} className="btn h-8">
+                  검색
+                </button>
+              </fieldset>
+            </form>
           </div>
           <div className="flex h-10">
             <CardTitle textValue={"목록"} />
@@ -394,10 +400,13 @@ export default function AcademyTest() {
               <tbody>
                 {sortedDisplayedList.map((entry, index) => {
                   return (
-                    <tr key={`${entry.name}_${index}`} className="text-center">
+                    <tr
+                      key={`${entry.studentCode}_${index}`}
+                      className="text-center"
+                    >
                       <td className="py-1 px-2 text-nowrap sticky left-0 bg-white">
                         <Link
-                          to={`/academy-test/detail/${entry.name}`}
+                          to={`/academy-test/detail/${entry.studentCode}`}
                           className="hover:text-sky-500"
                         >
                           {entry.name}
@@ -422,13 +431,11 @@ export default function AcademyTest() {
                         {entry.school}
                       </td>
                       {testNameList.map((item, index) => {
-                        const test = entry.tests.find(
-                          (t) => t.name === item.code
-                        );
+                        const test = entry.testMap.get(item.code);
 
                         return (
                           <React.Fragment
-                            key={`${entry.name}_${entry.gender}_${item.code}_${index}`}
+                            key={`${entry.studentCode}_${item.code}_${index}`}
                           >
                             <td className="px-1 text-neutral-600 bg-neutral-100">
                               {test?.record ?? "-"}

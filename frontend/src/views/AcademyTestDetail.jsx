@@ -12,7 +12,7 @@ import { ClipLoader } from "react-spinners";
 import EventRadarChart from "../components/common/EventRadarChart";
 
 export default function AcademyTestDetail() {
-  const { studentName } = useParams();
+  const { studentCode } = useParams();
 
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.academyTests);
@@ -30,8 +30,8 @@ export default function AcademyTestDetail() {
   }, [dispatch, data]);
 
   const detailData = useMemo(
-    () => data?.find((item) => item.name === studentName),
-    [data, studentName]
+    () => data?.find((item) => item.studentCode === studentCode),
+    [data, studentCode]
   );
 
   return (
