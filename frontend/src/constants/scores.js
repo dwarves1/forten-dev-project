@@ -24,7 +24,7 @@ export const getScore = (testName, gender, record) => {
   }
 };
 
-const scoreTable = {
+export const scoreTable = {
   pfJump: {
     higherIsBetter: true,
     male: [
