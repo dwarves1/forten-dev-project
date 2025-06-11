@@ -19,11 +19,10 @@ export default function AcademyTest() {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [filteredLists, setFilteredLists] = useState([]);
   const [displayedList, setDisplayedList] = useState(null);
-  const [searchTerm, setSearchTerm] = useState({
-    gender: "all",
-    district: "all",
-    name: "",
-  });
+  const [gender, setGender] = useState("all");
+  const [district, setDistrict] = useState("all");
+  const [name, setName] = useState("");
+
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: SORT_TYPE.desc,
@@ -32,11 +31,10 @@ export default function AcademyTest() {
   const handleSelectMonth = (e) => {
     const value = e.target.value;
     setSelectedMonth(value);
-    setSearchTerm({
-      gender: "all",
-      district: "all",
-      name: "",
-    });
+
+    setGender("all");
+    setDistrict("all");
+    setName("");
 
     setFilteredLists(
       data.filter((item) => {
@@ -66,12 +64,22 @@ export default function AcademyTest() {
     if (!displayedList) return [];
     if (!sortConfig.key) return displayedList;
 
-    const sorted = [...displayedList].sort((x, y) => {
+    const listsWithTestMap = displayedList.map((entry) => {
+      const testMap = new Map();
+
+      entry.tests.forEach((test) => {
+        testMap.set(test.name, test);
+      });
+
+      return { ...entry, testMap };
+    });
+
+    const sorted = [...listsWithTestMap].sort((x, y) => {
       if (sortConfig.key.startsWith("score:")) {
         const testName = sortConfig.key.split(":")[1];
 
-        const xEvent = x.tests.find((test) => test.name === testName);
-        const yEvent = y.tests.find((test) => test.name === testName);
+        const xEvent = x.testMap.get(testName);
+        const yEvent = y.testMap.get(testName);
 
         const xScore = parseFloat(xEvent?.score ?? "0");
         const yScore = parseFloat(yEvent?.score ?? "0");
@@ -82,8 +90,8 @@ export default function AcademyTest() {
       } else if (sortConfig.key.startsWith("record:")) {
         const testName = sortConfig.key.split(":")[1];
 
-        const xEvent = x.tests.find((test) => test.name === testName);
-        const yEvent = y.tests.find((test) => test.name === testName);
+        const xEvent = x.testMap.get(testName);
+        const yEvent = y.testMap.get(testName);
 
         const xRecord = parseFloat(xEvent?.record ?? "0");
         const yRecord = parseFloat(yEvent?.record ?? "0");
@@ -111,22 +119,12 @@ export default function AcademyTest() {
     return sorted;
   }, [displayedList, sortConfig]);
 
-  const handleSearchTermChange = (value, field) => {
-    setSearchTerm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   const handleSearchClick = () => {
     const newList = data.filter((student) => {
-      const matchName =
-        searchTerm.name === "" || student.name.includes(searchTerm.name);
-      const matchGender =
-        searchTerm.gender === "all" || student.gender === searchTerm.gender;
+      const matchName = name === "" || student.name.includes(name);
+      const matchGender = gender === "all" || student.gender === gender;
       const matchEducatinalGroup =
-        searchTerm.district === "all" ||
-        student.district === searchTerm.district;
+        district === "all" || student.district === district;
 
       return matchName && matchGender && matchEducatinalGroup;
     });
@@ -224,7 +222,7 @@ export default function AcademyTest() {
             </Link>
           </div>
         </div>
-        <CardLayout>
+        <CardLayout minHeight={"min-h-200"}>
           <div>
             <fieldset className="fieldset flex items-end">
               <legend className="fieldset-legend">학생 검색</legend>
@@ -239,10 +237,8 @@ export default function AcademyTest() {
                         name="radio-10"
                         className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
                         value="all"
-                        checked={searchTerm.gender === "all"}
-                        onChange={(e) =>
-                          handleSearchTermChange(e.target.value, "gender")
-                        }
+                        checked={gender === "all"}
+                        onChange={(e) => setGender(e.target.value)}
                       />
                     </label>
                     <label className="mr-2">
@@ -252,10 +248,8 @@ export default function AcademyTest() {
                         name="radio-10"
                         className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
                         value="male"
-                        checked={searchTerm.gender === "male"}
-                        onChange={(e) =>
-                          handleSearchTermChange(e.target.value, "gender")
-                        }
+                        checked={gender === "male"}
+                        onChange={(e) => setGender(e.target.value)}
                       />
                     </label>
                     <label>
@@ -265,10 +259,8 @@ export default function AcademyTest() {
                         name="radio-10"
                         className="radio radio-xs ml-1 checked:before:bg-blue-400 checked:border-blue-400"
                         value="female"
-                        checked={searchTerm.gender === "female"}
-                        onChange={(e) =>
-                          handleSearchTermChange(e.target.value, "gender")
-                        }
+                        checked={gender === "female"}
+                        onChange={(e) => setGender(e.target.value)}
                       />
                     </label>
                   </div>
@@ -276,10 +268,8 @@ export default function AcademyTest() {
                 <div className="flex flex-col">
                   <span>교육원</span>
                   <select
-                    value={searchTerm["district"]}
-                    onChange={(e) =>
-                      handleSearchTermChange(e.target.value, "district")
-                    }
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
                     className="select h-8 w-fit focus:border-blue-400"
                   >
                     <option value={"all"}>전체</option>
@@ -292,12 +282,10 @@ export default function AcademyTest() {
                 <div className="flex flex-col">
                   <span>학생 이름</span>
                   <input
-                    value={searchTerm["name"]}
+                    value={name}
                     className="input h-8 w-32 focus:border-blue-400"
                     placeholder="이름"
-                    onChange={(e) =>
-                      handleSearchTermChange(e.target.value, "name")
-                    }
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
               </div>
@@ -320,7 +308,11 @@ export default function AcademyTest() {
             )}
           </div>
           <div className="w-full overflow-x-auto pb-2">
-            <table className="table w-full text-sm">
+            <table
+              className={`table w-full text-sm ${
+                !data || (data.length === 0 && "min-h-100 h-full")
+              }`}
+            >
               <thead>
                 <tr className="bg-sky-50 text-center">
                   <th rowSpan={2} className="px-2 py-1 sticky left-0 bg-sky-50">
@@ -454,7 +446,7 @@ export default function AcademyTest() {
               </tbody>
             </table>
           </div>
-        </CardLayout>{" "}
+        </CardLayout>
       </div>
     </div>
   );

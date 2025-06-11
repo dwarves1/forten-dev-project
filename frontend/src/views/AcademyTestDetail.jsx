@@ -6,15 +6,22 @@ import { useParams } from "react-router-dom";
 import EventLineChart from "../components/common/EventLineChart";
 import { useDispatch, useSelector } from "react-redux";
 import { testNameList } from "../constants";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { getAcademyTests } from "../service/studentTestsSlice";
 import { ClipLoader } from "react-spinners";
+import EventRadarChart from "../components/common/EventRadarChart";
 
 export default function AcademyTestDetail() {
   const { studentName } = useParams();
 
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.academyTests);
+
+  useLayoutEffect(() => {
+    if (!loading) {
+      window.scrollTo(0, 0);
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (!data || data.length === 0) {
@@ -74,7 +81,7 @@ export default function AcademyTestDetail() {
           </div>
         )}
       </CardLayout>
-      <CardLayout>
+      <CardLayout minHeight={"min-h-150"}>
         <CardTitle textValue={"실기 기록 데이터"} />
         {loading || !detailData ? (
           <div className="flex w-full items-center justify-center py-20">
@@ -88,15 +95,29 @@ export default function AcademyTestDetail() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-12 mt-4 pt-4">
-            {testNameList.map((item) => (
-              <EventLineChart
-                key={item.code}
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-12 mt-4 pt-4">
+              {testNameList.map((item) => (
+                <EventLineChart
+                  key={item.code}
+                  monthlyTests={detailData?.monthlyTests}
+                  eventName={item.code}
+                />
+              ))}
+            </div>
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12">
+              <EventRadarChart
                 monthlyTests={detailData?.monthlyTests}
-                eventName={item.code}
+                gender={detailData?.gender}
+                type="avg"
               />
-            ))}
-          </div>
+              <EventRadarChart
+                monthlyTests={detailData?.monthlyTests}
+                gender={detailData?.gender}
+                type="max"
+              />
+            </div>
+          </>
         )}
       </CardLayout>
     </MainLayout>
