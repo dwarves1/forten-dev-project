@@ -41,7 +41,7 @@ export default function Header() {
         <Link to="/" className="sm:mr-8">
           <img
             className="object-cover w-22 min-w-18"
-            src="/src/assets/logo/forten_logo_color.png"
+            src="localhost:8080/forten_logo_color.png"
             alt="포텐 로고"
           />
         </Link>
