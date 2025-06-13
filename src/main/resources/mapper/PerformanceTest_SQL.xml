@@ -6,7 +6,7 @@
         select 
                s.name
              , s.student_code
-             , case when s.gender = 'm' then '남' else '여' end as gender
+             , case when s.gender = 'M' then '남' else '여' end as gender
              , pr.record_ym
              , (select code_name from common_code where code = s.region_code) as region_code
              , (select code_name from common_code where code = s.school_code) as school_code
