@@ -7,7 +7,7 @@ import {
   LabelList,
   ResponsiveContainer,
 } from "recharts";
-import { getTestNameInKorean } from "../../constants";
+import { getTestNameInKorean, scoreTable } from "../../constants";
 
 const getChartDataWithRecord = (monthlyTests, eventName) => {
   const result = Object.entries(monthlyTests)
@@ -45,7 +45,9 @@ export default function EventLineChart({ monthlyTests, eventName }) {
 
   return (
     <div className="w-full h-68">
-      <h2 className="text-sm ml-10">{getTestNameInKorean(eventName)}</h2>
+      <h2 className="text-sm ml-10">{`${getTestNameInKorean(eventName)}(${
+        scoreTable[eventName]["recordUnit"]
+      })`}</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 20, right: 15 }}>
           <CartesianGrid strokeDasharray="3 3" />

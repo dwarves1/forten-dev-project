@@ -26,6 +26,7 @@ export const getScore = (testName, gender, record) => {
 
 export const scoreTable = {
   pfJump: {
+    recordUnit: "cm",
     higherIsBetter: true,
     male: [
       { record: 300, score: 100 },
@@ -85,6 +86,7 @@ export const scoreTable = {
     ],
   },
   pfSitup: {
+    recordUnit: "회",
     higherIsBetter: true,
     male: [
       { record: 77, score: 100 },
@@ -145,6 +147,7 @@ export const scoreTable = {
     ],
   },
   pfZrun: {
+    recordUnit: "초",
     higherIsBetter: false,
     male: [
       { record: 13.99, score: 100 },
@@ -204,6 +207,7 @@ export const scoreTable = {
     ],
   },
   pfMedicine: {
+    recordUnit: "m",
     higherIsBetter: true,
     male: [
       { record: 12, score: 100 },
@@ -263,6 +267,7 @@ export const scoreTable = {
     ],
   },
   pfSprint100: {
+    recordUnit: "초",
     higherIsBetter: false,
     male: [
       { record: 11.5, score: 100 },
@@ -322,6 +327,7 @@ export const scoreTable = {
     ],
   },
   pfFlex: {
+    recordUnit: "cm",
     higherIsBetter: true,
     male: [
       { record: 30, score: 100 },
@@ -381,6 +387,7 @@ export const scoreTable = {
     ],
   },
   pfThrow: {
+    recordUnit: "m",
     higherIsBetter: true,
     male: [
       { record: 43, score: 100 },
@@ -440,6 +447,7 @@ export const scoreTable = {
     ],
   },
   pfBack: {
+    recordUnit: "kg",
     higherIsBetter: true,
     male: [
       { record: 220, score: 100 },
@@ -499,6 +507,7 @@ export const scoreTable = {
     ],
   },
   pfShuttle10: {
+    recordUnit: "초",
     higherIsBetter: false,
     male: [
       { record: 7.5, score: 100 },
@@ -558,6 +567,7 @@ export const scoreTable = {
     ],
   },
   pfShuttle20: {
+    recordUnit: "초",
     higherIsBetter: false,
     male: [
       { record: 14.0, score: 100 },

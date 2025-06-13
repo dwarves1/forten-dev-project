@@ -143,7 +143,7 @@ export default function EventRadarChart({ monthlyTests, gender, type }) {
             }
             fillOpacity={0.3}
           >
-            <LabelList content={customLabel} />
+            <LabelList dataKey="rawValue" content={customLabel} />
           </Radar>
         </RadarChart>
       </ResponsiveContainer>
