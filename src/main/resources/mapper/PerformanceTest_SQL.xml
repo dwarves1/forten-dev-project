@@ -3,26 +3,26 @@
 <mapper namespace="com.forten.mapper.PerformanceTestMapper">
     
     <select id="selectListAllPerformanceTest" parameterType="com.forten.vo.PerformanceTestVO" resultType="com.forten.vo.PerformanceTestVO">
-        SELECT 
+        select 
                s.name
              , s.student_code
              , case when s.gender = 'M' then '남' else '여' end as gender
              , pr.record_ym
              , (select code_name from common_code where code = s.region_code) as region_code
              , (select code_name from common_code where code = s.school_code) as school_code
-             , MAX(CASE WHEN ec.event_code = 'jump' THEN pr.score END) AS pf_jump
-             , MAX(CASE WHEN ec.event_code = 'situp' THEN pr.score END) AS pf_situp
-             , MAX(CASE WHEN ec.event_code = 'zrun' THEN pr.score END) AS pf_zrun
-             , MAX(CASE WHEN ec.event_code = 'medicine' THEN pr.score END) AS pf_medicine
-             , MAX(CASE WHEN ec.event_code = 'sprint100' THEN pr.score END) AS pf_sprint100
-             , MAX(CASE WHEN ec.event_code = 'flex' THEN pr.score END) AS pf_flex
-             , MAX(CASE WHEN ec.event_code = 'throw' THEN pr.score END) AS pf_throw
-             , MAX(CASE WHEN ec.event_code = 'back' THEN pr.score END) AS pf_back
-             , MAX(CASE WHEN ec.event_code = 'shuttle10' THEN pr.score END) AS pf_shuttle10
-             , MAX(CASE WHEN ec.event_code = 'shuttle20' THEN pr.score END) AS pf_shuttle20
-          FROM performance_record pr
-          JOIN student s ON pr.student_code = s.student_code
-          JOIN event_code ec ON pr.event_code = ec.event_code
+             , max(case when ec.event_code = 'jump' then pr.score end) as pf_jump
+             , max(case when ec.event_code = 'situp' then pr.score end) as pf_situp
+             , max(case when ec.event_code = 'zrun' then pr.score end) as pf_zrun
+             , max(case when ec.event_code = 'medicine' then pr.score end) as pf_medicine
+             , max(case when ec.event_code = 'sprint100' then pr.score end) as pf_sprint100
+             , max(case when ec.event_code = 'flex' then pr.score end) as pf_flex
+             , max(case when ec.event_code = 'throw' then pr.score end) as pf_throw
+             , max(case when ec.event_code = 'back' then pr.score end) as pf_back
+             , max(case when ec.event_code = 'shuttle10' then pr.score end) as pf_shuttle10
+             , max(case when ec.event_code = 'shuttle20' then pr.score end) as pf_shuttle20
+          from performance_record pr
+          join student s on pr.student_code = s.student_code
+          join event_code ec on pr.event_code = ec.event_code
          where 1=1
          <if test="recordYm != null and recordYm != ''">
            and pr.record_ym = #{recordYm}

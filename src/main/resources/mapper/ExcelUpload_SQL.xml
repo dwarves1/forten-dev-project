@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forten.mapper.ExcelMapper">
+    
+    <select id="selectUploadBeforeStudent" parameterType="com.forten.vo.ExcelDataVO" resultType="com.forten.vo.ExcelDataVO">
+        select 
+               student_code
+          from student
+         where name = #{name}
+           and gender = #{gender}
+           and school_code = (select code from common_code cc where cc.code_group = 'SCHOOL' and cc.code_name = #{schoolCode})
+           and region_code = (select code from common_code cc where cc.code_group = 'DISTRICT' and cc.code_name = #{regionCode})
+    </select>
+
+    <insert id="insertPerformanceTest" parameterType="com.forten.vo.ExcelDataVO">
+        <selectKey keyProperty="studentCode" resultType="String" order="BEFORE">
+            select 
+                   student_code
+              from student
+            where name = #{name}
+              and gender = #{gender}
+              and school_code = (select code from common_code cc where cc.code_group = 'SCHOOL' and cc.code_name = #{schoolCode})
+              and region_code = (select code from common_code cc where cc.code_group = 'DISTRICT' and cc.code_name = #{regionCode})
+              LIMIT 1
+        </selectKey>
+        insert into 
+               performance_record 
+             ( 
+               record_ym
+             , student_code
+             , event_code
+             , score
+             , created_at
+             , created_by
+             , updated_at
+             , updated_by
+             ) 
+      VALUES ( 
+               #{recordYm}
+             , #{studentCode}
+             , #{pfName}
+             , #{score}
+             , now()
+             , 'jjs'
+             , now()
+             , 'jjs'
+             )
+    </insert>
+</mapper>
