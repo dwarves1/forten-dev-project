@@ -1,5 +1,6 @@
 package com.forten.vo;
 
+import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
@@ -21,7 +22,6 @@ public class ExcelDataVO {
     private String unit;
 
     private String recordYm;
-    private BigDecimal score;
 
     private String createdAt;
     private String createdBy;
