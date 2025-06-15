@@ -1,14 +1,17 @@
 package com.forten.service;
 
 import com.forten.mapper.ExcelMapper;
+import com.forten.mapper.PerformanceTestMapper;
 import com.forten.vo.ExcelDataVO;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,22 +44,22 @@ public class ExcelService {
                 String schoolCode = getCellValueAsString(row.getCell(4)); // 학교
 
                 // 실기기
-                BigDecimal pfJump = BigDecimal.valueOf(getCellValueAsString(row.getCell(5))); // 제자리멀리뛰기
-                BigDecimal pfSitup = BigDecimal.valueOf(getCellValueAsString(row.getCell(6))); // 윗몸일으키기
-                BigDecimal pfZrun = BigDecimal.valueOf(getCellValueAsString(row.getCell(7))); // z런달리기
-                BigDecimal pfMedicine = BigDecimal.valueOf(getCellValueAsString(row.getCell(8))); // 메디신볼
-                BigDecimal pfSprint100 = BigDecimal.valueOf(getCellValueAsString(row.getCell(9))); // 100m달리기
-                BigDecimal pfFlex = BigDecimal.valueOf(getCellValueAsString(row.getCell(10))); // 유연성
-                BigDecimal pfThrow = BigDecimal.valueOf(getCellValueAsString(row.getCell(11))); // 던지기
-                BigDecimal pfBack = BigDecimal.valueOf(getCellValueAsString(row.getCell(12))); // 배근력
-                BigDecimal pfShuttle10 = BigDecimal.valueOf(getCellValueAsString(row.getCell(13))); // 10m왕복
-                BigDecimal pfShuttle20 = BigDecimal.valueOf(getCellValueAsString(row.getCell(14))); // 20m왕복
+                BigDecimal pfJump = parseBigDecimal(getCellValueAsString(row.getCell(5))); // 제자리멀리뛰기
+                BigDecimal pfSitup = parseBigDecimal(getCellValueAsString(row.getCell(6))); // 윗몸일으키기
+                BigDecimal pfZrun = parseBigDecimal(getCellValueAsString(row.getCell(7))); // z런달리기
+                BigDecimal pfMedicine = parseBigDecimal(getCellValueAsString(row.getCell(8))); // 메디신볼
+                BigDecimal pfSprint100 = parseBigDecimal(getCellValueAsString(row.getCell(9))); // 100m달리기
+                BigDecimal pfFlex = parseBigDecimal(getCellValueAsString(row.getCell(10))); // 유연성
+                BigDecimal pfThrow = parseBigDecimal(getCellValueAsString(row.getCell(11))); // 던지기
+                BigDecimal pfBack = parseBigDecimal(getCellValueAsString(row.getCell(12))); // 배근력
+                BigDecimal pfShuttle10 = parseBigDecimal(getCellValueAsString(row.getCell(13))); // 10m왕복
+                BigDecimal pfShuttle20 = parseBigDecimal(getCellValueAsString(row.getCell(14))); // 20m왕복
 
                 // 성별 코드 변경
-                if('남'.equals(gender)) {
-                    gender = 'M';
+                if("남".equals(gender)) {
+                    gender = "M";
                 } else {
-                    gender = 'W';
+                    gender = "W";
                 }
 
                 // 공통적으로 들어가는 데이터 세팅
@@ -68,66 +71,66 @@ public class ExcelService {
 
                 // 실기별 데이터
                 String pfName = "";
-                BigDecimal score = 0;
+                BigDecimal score = BigDecimal.valueOf(0);
 
                 for(int i = 0; i < 10; i++) {
                     switch(i) {
                         case 0 :
-                            if(pfJump > 0 || pfJump != null) {
+                            if(pfJump.compareTo(BigDecimal.valueOf(0)) > 0 || pfJump != null) {
                                 pfName = "jump";
                                 score = pfJump;
                             }
                             break;
                         case 1 :
-                            if(pfSitup > 0 || pfSitup != null) {
+                            if(pfSitup.compareTo(BigDecimal.valueOf(0)) > 0 || pfSitup != null) {
                                 pfName = "situp";
                                 score = pfSitup;
                             }
                             break;
                         case 2 :
-                            if(pfZrun > 0 || pfZrun != null) {
+                            if(pfZrun.compareTo(BigDecimal.valueOf(0)) > 0 || pfZrun != null) {
                                 pfName = "zrun";
                                 score = pfZrun;
                             }
                             break;
                         case 3 :
-                            if(pfMedicine > 0 || pfMedicine != null) {
+                            if(pfMedicine.compareTo(BigDecimal.valueOf(0)) > 0 || pfMedicine != null) {
                                 pfName = "medicine";
                                 score = pfMedicine;
                             }
                             break;
                         case 4 :
-                            if(pfSprint100 > 0 || pfMedicinpfSprint100e != null) {
+                            if(pfSprint100.compareTo(BigDecimal.valueOf(0)) > 0 || pfSprint100 != null) {
                                 pfName = "sprint100";
                                 score = pfSprint100;
                             }
                             break;
                         case 5 :
-                            if(pfFlex > 0 || pfFlex != null) {
+                            if(pfFlex.compareTo(BigDecimal.valueOf(0)) > 0 || pfFlex != null) {
                                 pfName = "flex";
                                 score = pfFlex;
                             }
                             break;
                         case 6 :
-                            if(pfThrow > 0 || pfThrow != null) {
+                            if(pfThrow.compareTo(BigDecimal.valueOf(0)) > 0 || pfThrow != null) {
                                 pfName = "throw";
                                 score = pfThrow;
                             }
                             break;
                         case 7 :
-                            if(pfBack > 0 || pfBack != null) {
+                            if(pfBack.compareTo(BigDecimal.valueOf(0)) > 0 || pfBack != null) {
                                 pfName = "back";
                                 score = pfBack;
                             }
                             break;
                         case 8 :
-                            if(pfShuttle10 > 0 || pfShuttle10 != null) {
+                            if(pfShuttle10.compareTo(BigDecimal.valueOf(0)) > 0 || pfShuttle10 != null) {
                                 pfName = "shuttle10";
                                 score = pfShuttle10;
                             }
                             break;
                         case 9 :
-                            if(pfShuttle20 > 0 || pfShuttle20 != null) {
+                            if(pfShuttle20.compareTo(BigDecimal.valueOf(0)) > 0 || pfShuttle20 != null) {
                                 pfName = "shuttle20";
                                 score = pfShuttle20;
                             }
@@ -172,4 +175,12 @@ public class ExcelService {
                 return "";
         }
     }
+
+    private BigDecimal parseBigDecimal(String value) {
+        try {
+            return new BigDecimal(value.trim());
+        } catch (Exception e) {
+            return BigDecimal.ZERO; // 또는 null
+    }
+}
 } 
