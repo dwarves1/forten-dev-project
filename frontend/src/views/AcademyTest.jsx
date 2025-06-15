@@ -17,18 +17,17 @@ export default function AcademyTest() {
 
   const [allMonths, setALLMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(null);
-  const [filteredLists, setFilteredLists] = useState([]);
-  const [displayedList, setDisplayedList] = useState(null);
+  const [displayedList, setDisplayedList] = useState([]);
   const [gender, setGender] = useState("all");
   const [district, setDistrict] = useState("all");
   const [name, setName] = useState("");
-
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: SORT_TYPE.desc,
   });
 
-  const handleSelectMonth = (e) => {
+  // 월 선택 변경 핸들러 함수
+  const handleSelectMonth = async (e) => {
     const value = e.target.value;
     setSelectedMonth(value);
 
@@ -36,17 +35,19 @@ export default function AcademyTest() {
     setDistrict("all");
     setName("");
 
-    setFilteredLists(
-      data.filter((item) => {
-        if (value === "all") {
-          return true;
-        }
-        return item.monthlyTests[selectedMonth];
-      })
-    );
     setSortConfig({ key: null, direction: SORT_TYPE.desc });
+
+    await dispatch(getAcademyTests());
   };
 
+  // 학생 검색 버튼 함수
+  const handleSearchClick = async () => {
+    setSortConfig({ key: null, direction: SORT_TYPE.desc });
+
+    await dispatch(getAcademyTests());
+  };
+
+  // 데이터 정렬 함수
   const handleHeaderClick = (key) => {
     setSortConfig((prev) => {
       if (prev.key === key) {
@@ -60,6 +61,7 @@ export default function AcademyTest() {
     });
   };
 
+  // 화면용 정렬 리스트
   const sortedDisplayedList = useMemo(() => {
     if (!displayedList) return [];
     if (!sortConfig.key) return displayedList;
@@ -91,18 +93,26 @@ export default function AcademyTest() {
         return sortConfig.direction === SORT_TYPE.desc ? -res : res;
       }
 
-      const v1 = x[sortConfig.key];
-      const v2 = y[sortConfig.key];
-
-      const n1 = parseFloat(v1);
-      const n2 = parseFloat(v2);
-      const isNum = !isNaN(n1) && !isNaN(n2);
-
       let res = 0;
-      if (isNum) {
-        res = n1 - n2;
+
+      if (sortConfig.key === "month") {
+        const date1 = new Date(x.month + "-01");
+        const date2 = new Date(x.month + "-01");
+
+        res = date1 - date2;
       } else {
-        res = String(v1).localeCompare(String(v2));
+        const v1 = x[sortConfig.key];
+        const v2 = y[sortConfig.key];
+
+        const n1 = parseFloat(v1);
+        const n2 = parseFloat(v2);
+        const isNum = !isNaN(n1) && !isNaN(n2);
+
+        if (isNum) {
+          res = n1 - n2;
+        } else {
+          res = String(v1).localeCompare(String(v2));
+        }
       }
       return sortConfig.direction === SORT_TYPE.desc ? -res : res;
     });
@@ -110,49 +120,37 @@ export default function AcademyTest() {
     return sorted;
   }, [displayedList, sortConfig]);
 
-  const handleSearchClick = () => {
-    const newList = data.filter((student) => {
-      const matchName = name === "" || student.name.includes(name);
-      const matchGender = gender === "all" || student.gender === gender;
-      const matchEducatinalGroup =
-        district === "all" || student.district === district;
-
-      return matchName && matchGender && matchEducatinalGroup;
-    });
-
-    setFilteredLists(newList);
-  };
-
+  // 데이터 최초 로드
   useEffect(() => {
-    if (!data) return;
+    dispatch(getAcademyTests());
+  }, [dispatch]);
+
+  // 데이터 세팅
+  useEffect(() => {
+    if (!data || data.length === 0) return;
 
     const months = Array.from(
       new Set(data.flatMap((s) => Object.keys(s.monthlyTests)))
     );
     const sortedMonths = months.sort().reverse();
-    const initialMonth = sortedMonths[0];
+    const initialMonth = sortedMonths[0] || "all";
+
     setALLMonths(sortedMonths);
-    setSelectedMonth(initialMonth);
-  }, [data]);
+    setSelectedMonth((prev) => prev ?? initialMonth);
 
-  useEffect(() => {
-    if (!selectedMonth || data.length === 0) return;
+    // 필터링
+    const filtered = data.filter((student) => {
+      const matchName = name === "" || student.name.includes(name);
+      const matchGender = gender === "all" || student.gender === gender;
+      const matchDistrict = district === "all" || student.district === district;
+      const matchDate =
+        selectedMonth === "all" ? true : student.monthlyTests[selectedMonth];
 
-    const filtered =
-      selectedMonth === "all"
-        ? data
-        : data.filter((item) => item.monthlyTests[selectedMonth]);
+      return matchName && matchGender && matchDistrict && matchDate;
+    });
 
-    setFilteredLists(filtered);
-  }, [selectedMonth, data]);
-
-  useEffect(() => {
-    if (filteredLists.length === 0) {
-      setDisplayedList([]);
-      return;
-    }
-
-    const newDisplayed = filteredLists.flatMap((student) =>
+    // 디스플레이용 매핑
+    const displayed = filtered.flatMap((student) =>
       Object.entries(student.monthlyTests)
         .filter(([month]) => selectedMonth === "all" || selectedMonth === month)
         .map(([month, data]) => {
@@ -175,12 +173,8 @@ export default function AcademyTest() {
         })
     );
 
-    setDisplayedList(newDisplayed);
-  }, [filteredLists, selectedMonth]);
-
-  useEffect(() => {
-    dispatch(getAcademyTests());
-  }, [dispatch]);
+    setDisplayedList(displayed);
+  }, [data]);
 
   return (
     <div className="min-h-[calc(100vh-10rem)] pt-20 sm:pt-28 bg-base-200 px-4 pb-10 sm:px-6">
@@ -282,6 +276,7 @@ export default function AcademyTest() {
                       <option value={"동구"}>동구</option>
                       <option value={"북구"}>북구</option>
                       <option value={"중구"}>중구</option>
+                      <option value={"기타"}>기타</option>
                     </select>
                   </div>
                   <div className="flex flex-col">
@@ -335,7 +330,12 @@ export default function AcademyTest() {
                     성별
                   </th>
                   <th rowSpan={2} className="px-2 py-1">
-                    월별
+                    <span
+                      className="cursor-pointer"
+                      onClick={() => handleHeaderClick("month")}
+                    >
+                      월별
+                    </span>
                   </th>
                   <th rowSpan={2} className="px-2 py-1">
                     <div className="flex flex-col items-center">
