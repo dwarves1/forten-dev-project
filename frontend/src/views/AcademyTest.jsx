@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import PageTitle from "../components/ui/PageTitle";
 import CardLayout from "../components/layouts/CardLayout";
 import CardTitle from "../components/ui/CardTitle";
@@ -8,12 +8,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAcademyTests } from "../service/studentTestsSlice";
 import { ClipLoader } from "react-spinners";
 import { testNameList } from "../constants";
+import toast from "react-hot-toast";
+import { excelSliceResetStatus, uploadExcel } from "../service/excelSlice";
 
 const SORT_TYPE = { desc: "desc", asc: "asc" };
 
 export default function AcademyTest() {
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.academyTests);
+  const excelLoading = useSelector((state) => state.excel.loading);
+  const excelError = useSelector((state) => state.excel.error);
+  const excelSuccess = useSelector((state) => state.excel.success);
 
   const [allMonths, setALLMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -25,6 +30,36 @@ export default function AcademyTest() {
     key: null,
     direction: SORT_TYPE.desc,
   });
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // 엑셀 업로드 모달창 컨트롤 함수
+  const handleModalBtn = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      setFile(null);
+      fileInputRef.current.value = null;
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  // 엑셀 파일 선택 함수
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  // 엑셀 파일 업로드 함수
+  const handleUploadExcelFile = () => {
+    if (!file) {
+      toast.error("파일을 선택해주세요.");
+      return;
+    }
+
+    dispatch(uploadExcel(file));
+  };
 
   // 월 선택 변경 핸들러 함수
   const handleSelectMonth = async (e) => {
@@ -176,6 +211,24 @@ export default function AcademyTest() {
     setDisplayedList(displayed);
   }, [data]);
 
+  useEffect(() => {
+    if (excelError) {
+      toast.error("엑셀 파일 업로드에 실패했습니다.");
+
+      dispatch(excelSliceResetStatus());
+    }
+  }, [excelError]);
+
+  useEffect(() => {
+    if (excelSuccess) {
+      toast.success("엑셀 파일 업로드가 성공적으로 처리되었습니다.");
+      setFile(null);
+      fileInputRef.current.value = null;
+
+      dispatch(excelSliceResetStatus());
+    }
+  }, [excelSuccess]);
+
   return (
     <div className="min-h-[calc(100vh-10rem)] pt-20 sm:pt-28 bg-base-200 px-4 pb-10 sm:px-6">
       <div className="max-w-7xl mx-auto">
@@ -200,7 +253,10 @@ export default function AcademyTest() {
           </fieldset>
           <div className="flex gap-2">
             <button className="btn btn-sm btn-outline">양식다운로드</button>
-            <button className="btn btn-sm btn-outline btn-success">
+            <button
+              className="btn btn-sm btn-outline btn-success"
+              onClick={handleModalBtn}
+            >
               엑셀업로드
             </button>
             <Link to="/academy-test/add-record">
@@ -455,6 +511,50 @@ export default function AcademyTest() {
           </div>
         </CardLayout>
       </div>
+      {/* 엑셀 업로드 모달 */}
+      {isOpen && (
+        <div className={`modal ${isOpen ? "modal-open" : "none"}`}>
+          <div className="modal-box">
+            <div
+              onClick={handleModalBtn}
+              className="p-1 absolute right-3.5 top-3.5 cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="w-6 h-6"
+              >
+                <path
+                  fill="currentColor"
+                  d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59L7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12L5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 1 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4"
+                ></path>
+              </svg>
+            </div>
+            <CardTitle textValue="엑셀 파일 업로드" />
+            <div className="flex flex-col">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileChange}
+                className="my-10 block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:text-xs file:font-semibold
+              file:bg-indigo-50 file:text-indigo-700
+              hover:file:bg-indigo-100"
+              />
+              <button
+                onClick={handleUploadExcelFile}
+                className="btn btn-sm btn-outline"
+                disabled={excelLoading}
+              >
+                {excelLoading ? "업로드 중..." : "업로드"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
