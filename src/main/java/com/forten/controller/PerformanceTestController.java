@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import java.io.IOException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
+import java.util.HashMap;
+
 /**
 | 어노테이션                         | 설명                                            |
 | ----------------------------- | --------------------------------------------- |
@@ -40,5 +46,44 @@ public class PerformanceTestController {
     @GetMapping("/selectListAllPerformanceTest")
     public List<PerformanceTestVO> selectListAllPerformanceTest(@ModelAttribute PerformanceTestVO performanceTestVO) {
         return performanceTestService.selectListAllPerformanceTest(performanceTestVO);
+    }
+
+    @GetMapping("/selectListAllStudent")
+    public List<PerformanceTestVO> selectListAllStudent(@ModelAttribute PerformanceTestVO performanceTestVO) {
+        return performanceTestService.selectListAllStudent(performanceTestVO);
+    }
+
+    @PostMapping("/insertStudent")
+    public ResponseEntity<Map<String, Object>> insertStudent(
+        @ModelAttribute PerformanceTestVO performanceTestVO) {
+            try {
+                performanceTestService.insertStudent(performanceTestVO);
+
+                Map<String, Object> result = new HashMap<>();
+                result.put("message", "학생 등록이 완료되었습니다.");
+                return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            } catch (RuntimeException error) {
+                Map<String, Object> errorBody = new HashMap<>();
+                errorBody.put("error", "학생 등록 실패"); 
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+            }
+    }
+
+    @PostMapping("/insertPerformanceRecord")
+    public ResponseEntity<Map<String, Object>> insertPerformanceRecord(@RequestBody PerformanceTestVO performanceTestVO) {
+        try {
+            performanceTestService.insertPerformanceRecord(performanceTestVO);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "테스트 기록 저장이 완료되었습니다.");
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (RuntimeException error) {
+            Map<String, Object> errorBody = new HashMap<>();
+            errorBody.put("error", "테스트 기록 저장 실패"); 
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+        }
     }
 }

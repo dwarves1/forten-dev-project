@@ -45,4 +45,91 @@
       ORDER BY pr.record_ym
              , s.name
     </select>
+    <insert id="insertStudent" parameterType="com.forten.vo.PerformanceTestVO">
+        insert into
+               student
+             (
+                  student_code
+                , name
+                , gender
+                , school_code_group
+                , school_code
+                , region_code_group
+                , region_code
+                , created_at
+                , created_by
+                , updated_at
+                , updated_by
+                , image_src
+             ) 
+        values (
+           nextval('student_code_seq')::TEXT
+          , #{name}
+          , #{gender}
+          , 'SCHOOL'
+          , (SELECT code FROM common_code where code_group = 'SCHOOL' and code_name = #{schoolCode})
+          , 'DISTRICT'
+          , (SELECT code FROM common_code where code_group = 'DISTRICT' and code_name = #{regionCode})
+          , now()
+          , 'jjs'
+          , now()
+          , 'jjs'
+          , #{imageSrc}
+        )
+    </insert>
+    <select id="selectListAllStudent" parameterType="com.forten.vo.PerformanceTestVO" resultType="com.forten.vo.PerformanceTestVO">
+        select
+               name
+             , student_code
+             , image_src
+             , case when gender = 'M' then '남' else '여' end as gender
+             , (select code_name from common_code where code = region_code) as region_code
+             , (select code_name from common_code where code = school_code) as school_code
+          from student
+    </select>
+    <select id="selectPerformaceRecord" parameterType="com.forten.vo.PerformanceTestVO" resultType="com.forten.vo.PerformanceTestVO">
+        select
+               event_code
+             , student_code
+             , record_ym
+          from performance_record
+        where event_code = #{eventCode}
+          and student_code = #{studentCode}
+          and record_ym = #{recordYm}
+        limit 1
+    </select>
+    <update id="updatePerformanceRecord" parameterType="com.forten.vo.PerformanceTestVO">
+        update performance_record
+        set 
+            score = #{score}
+          , updated_at = now()
+          , updated_by = 'jjs'
+        where record_ym = #{recordYm}
+          and student_code = #{studentCode}
+          and event_code = #{eventCode}
+    </update>
+    <insert id="insertPerformanceRecord" parameterType="com.forten.vo.PerformanceTestVO">
+        insert into
+               performance_record
+             (
+                  record_ym
+                , student_code
+                , event_code
+                , score
+                , created_at
+                , created_by
+                , updated_at
+                , updated_by
+             )
+        values (
+            #{recordYm}
+          , #{studentCode}
+          , #{eventCode}
+          , #{score}
+          , now()
+          , 'jjs'
+          , now()
+          , 'jjs'
+        )
+    </insert>
 </mapper>

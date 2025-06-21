@@ -2,6 +2,7 @@ package com.forten.vo;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class PerformanceTestVO {
@@ -39,4 +40,9 @@ public class PerformanceTestVO {
     private BigDecimal pfBack;
     private BigDecimal pfShuttle10;
     private BigDecimal pfShuttle20;
+
+    private String imageSrc;
+    private String fileName;
+    private MultipartFile imageFile;
+
 }
