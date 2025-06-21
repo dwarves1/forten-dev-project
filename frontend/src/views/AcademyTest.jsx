@@ -132,7 +132,7 @@ export default function AcademyTest() {
 
       if (sortConfig.key === "month") {
         const date1 = new Date(x.month + "-01");
-        const date2 = new Date(x.month + "-01");
+        const date2 = new Date(y.month + "-01");
 
         res = date1 - date2;
       } else {
@@ -171,7 +171,11 @@ export default function AcademyTest() {
     const initialMonth = sortedMonths[0] || "all";
 
     setALLMonths(sortedMonths);
-    setSelectedMonth((prev) => prev ?? initialMonth);
+
+    if (!selectedMonth) {
+      setSelectedMonth(initialMonth);
+      return;
+    }
 
     // 필터링
     const filtered = data.filter((student) => {
@@ -209,7 +213,7 @@ export default function AcademyTest() {
     );
 
     setDisplayedList(displayed);
-  }, [data]);
+  }, [data, selectedMonth]);
 
   useEffect(() => {
     if (excelError) {
