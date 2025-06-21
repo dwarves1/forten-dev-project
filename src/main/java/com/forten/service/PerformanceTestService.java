@@ -49,7 +49,13 @@ public class PerformanceTestService {
                 }
 
                 String fullName = performanceTestVO.getFileName() + "." + ext;
-                String uploadDir = "/home/ubuntu/app/images/";
+                String uploadDir;
+                
+                if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                    uploadDir = "C:/temp/uploads/"; // 윈도우 개발 환경용 경로
+                } else {
+                    uploadDir = "/home/ubuntu/app/images/"; // 리눅스 서버용 경로
+                }
 
                 File dir = new File(uploadDir);
                 if(!dir.exists()) {
