@@ -261,7 +261,9 @@ export default function AddAcademyTest() {
           {selectedStudent && selectedStudent?.imageSrc !== null ? (
             <img
               className="border-1 border-stone-400 h-28 sm:h-36 md:h-48 aspect-2/3 object-cover transition-height duration-100"
-              src={`http://localhost:8080/images/${selectedStudent?.imageSrc}`}
+              src={`${import.meta.env.VITE_API_BASE_URL}/${
+                selectedStudent.imageSrc
+              }`}
               alt="학생 이미지"
             />
           ) : (

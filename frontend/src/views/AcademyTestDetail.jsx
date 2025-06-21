@@ -10,28 +10,44 @@ import { useEffect, useLayoutEffect, useMemo } from "react";
 import { getAcademyTests } from "../service/studentTestsSlice";
 import { ClipLoader } from "react-spinners";
 import EventRadarChart from "../components/common/EventRadarChart";
+import { getStudents } from "../service/studentSlice";
 
 export default function AcademyTestDetail() {
   const { studentCode } = useParams();
 
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.academyTests);
+  const { students } = useSelector((state) => state.student);
 
+  // 페이지 진입 시 스크롤 위치 조정
   useLayoutEffect(() => {
     if (!loading) {
       window.scrollTo(0, 0);
     }
   }, [loading]);
 
+  // test 데이터 로드
   useEffect(() => {
     if (!data || data.length === 0) {
       dispatch(getAcademyTests());
     }
   }, [dispatch, data]);
 
-  const detailData = useMemo(
+  // 학생 데이터 로드
+  useEffect(() => {
+    if (!students || students.length === 0) {
+      dispatch(getStudents());
+    }
+  }, [dispatch, students]);
+
+  const testData = useMemo(
     () => data?.find((item) => item.studentCode === studentCode),
     [data, studentCode]
+  );
+
+  const studentData = useMemo(
+    () => students?.find((st) => st.studentCode === studentCode),
+    [students, studentCode]
   );
 
   return (
@@ -42,7 +58,7 @@ export default function AcademyTestDetail() {
 
       <CardLayout>
         <CardTitle textValue={"학생정보"} />
-        {loading || !detailData ? (
+        {loading || !testData ? (
           <div className="flex w-full items-center justify-center py-20">
             <div>
               <ClipLoader
@@ -55,27 +71,44 @@ export default function AcademyTestDetail() {
           </div>
         ) : (
           <div className="flex w-full items-center mt-4">
-            <img
-              className="border-1 border-stone-400 h-32 sm:h-40 md:h-52 object-cover transition-height duration-100"
-              src="https://placehold.co/400x600"
-              alt="학생 사진"
-            />
+            {studentData?.imageSrc != null ? (
+              <img
+                className="border-1 border-stone-400 h-32 sm:h-40 md:h-52 aspect-2/3 object-cover transition-height duration-100"
+                src={`${import.meta.env.VITE_API_BASE_URL}/${
+                  studentData.imageSrc
+                }`}
+                alt="학생 사진"
+              />
+            ) : (
+              <div className="flex items-center justify-center text-center bg-stone-300 h-32 sm:h-40 md:h-52 aspect-2/3 transition-height duration-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 text-white"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M19 5v11.17l2 2V5c0-1.1-.9-2-2-2H5.83l2 2zM2.81 2.81L1.39 4.22L3 5.83V19c0 1.1.9 2 2 2h13.17l1.61 1.61l1.41-1.41zM5 19V7.83l7.07 7.07l-.82 1.1L9 13l-3 4h8.17l2 2z"
+                  ></path>
+                </svg>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4 md:gap-10 ml-4 sm:ml-8 w-full min-w-40">
               <div className="text-sm">
                 <p className="text-neutral-500">이름</p>
-                <p>{detailData?.name}</p>
+                <p>{studentData?.name}</p>
               </div>
               <div className="text-sm">
                 <p className="text-neutral-500">성별</p>
-                <p>{detailData?.gender === "female" ? "여" : "남"}</p>
+                <p>{studentData?.gender === "female" ? "여" : "남"}</p>
               </div>
               <div className="text-sm">
                 <p className="text-neutral-500">학교</p>
-                <p>{detailData?.school}</p>
+                <p>{studentData?.school}</p>
               </div>
               <div className="text-sm">
                 <p className="text-neutral-500">교육원</p>
-                <p>{detailData?.district}</p>
+                <p>{studentData?.district}</p>
               </div>
             </div>
           </div>
@@ -83,7 +116,7 @@ export default function AcademyTestDetail() {
       </CardLayout>
       <CardLayout minHeight={"min-h-150"}>
         <CardTitle textValue={"실기 기록 데이터"} />
-        {loading || !detailData ? (
+        {loading || !testData ? (
           <div className="flex w-full items-center justify-center py-20">
             <div>
               <ClipLoader
@@ -100,20 +133,20 @@ export default function AcademyTestDetail() {
               {testNameList.map((item) => (
                 <EventLineChart
                   key={item.code}
-                  monthlyTests={detailData?.monthlyTests}
+                  monthlyTests={testData?.monthlyTests}
                   eventName={item.code}
                 />
               ))}
             </div>
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12">
               <EventRadarChart
-                monthlyTests={detailData?.monthlyTests}
-                gender={detailData?.gender}
+                monthlyTests={testData?.monthlyTests}
+                gender={testData?.gender}
                 type="avg"
               />
               <EventRadarChart
-                monthlyTests={detailData?.monthlyTests}
-                gender={detailData?.gender}
+                monthlyTests={testData?.monthlyTests}
+                gender={testData?.gender}
                 type="max"
               />
             </div>
